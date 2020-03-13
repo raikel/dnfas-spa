@@ -1,0 +1,155 @@
+{
+  "id": "e76657d2-ccb4-40c6-852f-27b07a1194b4",
+  "version": "2.0",
+  "name": "dnfas-ui",
+  "url": "http://localhost:9528",
+  "tests": [{
+    "id": "0a2702d7-6381-41ab-869e-4bf44ca1f190",
+    "name": "test",
+    "commands": [{
+      "id": "72d5e777-3a32-41e9-938b-001073d1716d",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "05b7b1da-498a-4196-bb1e-1d333171733e",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "901x745",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e88f1b10-f77c-4db6-961f-fcef48ab2742",
+      "comment": "",
+      "command": "click",
+      "target": "css=.hamburger",
+      "targets": [
+        ["css=.hamburger", "css:finder"]
+      ],
+      "value": ""
+    }, {
+      "id": "b3616d98-7442-40fc-99c0-07d3076cc5e1",
+      "comment": "",
+      "command": "click",
+      "target": "css=.menu-wrapper:nth-child(2) span",
+      "targets": [
+        ["css=.menu-wrapper:nth-child(2) span", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/div[2]/div/div/ul/div[2]/a/li/span", "xpath:idRelative"],
+        ["xpath=//div[2]/a/li/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Personas')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "8a6cdf8f-264f-473c-86a1-9db054fdf504",
+      "comment": "",
+      "command": "click",
+      "target": "css=.el-col:nth-child(1) .hover",
+      "targets": [
+        ["css=.el-col:nth-child(1) .hover", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/section/div/div/div/div[2]/div/div/div/a/div/div", "xpath:idRelative"],
+        ["xpath=//a/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "368efa95-bad5-47e1-9cad-07f92a514e73",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.el-col:nth-child(1) .hover",
+      "targets": [
+        ["css=.el-col:nth-child(1) .hover", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/section/div/div/div/div[2]/div/div/div/a/div/div", "xpath:idRelative"],
+        ["xpath=//a/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "a5423633-53ec-4fda-94f8-b226a41e9065",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "css=.el-col:nth-child(1) .hover",
+      "targets": [
+        ["css=.el-col:nth-child(1) .hover", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/section/div/div/div/div[2]/div/div/div/a/div/div", "xpath:idRelative"],
+        ["xpath=//a/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "b8fdc9f5-8e81-465f-8407-0a99c1b6e307",
+      "comment": "",
+      "command": "click",
+      "target": "css=.hamburger",
+      "targets": [
+        ["css=.hamburger", "css:finder"]
+      ],
+      "value": ""
+    }, {
+      "id": "04ad71d0-cb08-467d-ab47-a4ab2bf25ff9",
+      "comment": "",
+      "command": "click",
+      "target": "css=.menu-wrapper:nth-child(4) span",
+      "targets": [
+        ["css=.menu-wrapper:nth-child(4) span", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/div[2]/div/div/ul/div[4]/a/li/span", "xpath:idRelative"],
+        ["xpath=//div[4]/a/li/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Cámaras')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "89d94c89-9207-4f12-a706-d1a457c753ad",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.menu-wrapper:nth-child(4) span",
+      "targets": [
+        ["css=.menu-wrapper:nth-child(4) span", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/div[2]/div/div/ul/div[4]/a/li/span", "xpath:idRelative"],
+        ["xpath=//div[4]/a/li/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Cámaras')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "be94233a-b2d9-4742-8c4c-48e2a9feb460",
+      "comment": "",
+      "command": "click",
+      "target": "css=.el-col:nth-child(1) .body-panel > .stat-info",
+      "targets": [
+        ["css=.el-col:nth-child(1) .body-panel > .stat-info", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/section/div/div/div[2]/div/div/div/a/div/div/div[2]/div/div", "xpath:idRelative"],
+        ["xpath=//a/div/div/div[2]/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "6c68b2bf-2427-45c0-bdd3-3c54f2935d09",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.el-col:nth-child(1) .body-panel > .stat-info",
+      "targets": [
+        ["css=.el-col:nth-child(1) .body-panel > .stat-info", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/section/div/div/div[2]/div/div/div/a/div/div/div[2]/div/div", "xpath:idRelative"],
+        ["xpath=//a/div/div/div[2]/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "899cb5ca-3f4d-4fd5-a009-6dca8eb95bcf",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "css=.el-col:nth-child(1) .body-panel > .stat-info",
+      "targets": [
+        ["css=.el-col:nth-child(1) .body-panel > .stat-info", "css:finder"],
+        ["xpath=//div[@id='app']/div/div[2]/section/div/div/div[2]/div/div/div/a/div/div/div[2]/div/div", "xpath:idRelative"],
+        ["xpath=//a/div/div/div[2]/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "45576870-2e29-43b9-93dd-3ee89f7a083a",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["0a2702d7-6381-41ab-869e-4bf44ca1f190"]
+  }],
+  "urls": ["http://localhost:9528/"],
+  "plugins": []
+}

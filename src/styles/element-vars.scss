@@ -1,0 +1,323 @@
+/* Color del tema */
+$--color-primary: #43a047;
+$--color-success: #409eff !default;
+$--color-warning: #e6a23c !default;
+$--color-danger: #f56c6c !default;
+$--color-info: #909399 !default;
+$--color-white: #ffffff !default;
+$--color-black: #000000 !default;
+
+$--input-height: 44px;
+$--input-medium-height: 40px;
+$--input-small-height: 36px;
+$--input-mini-height: 32px;
+
+$--border-radius-base: 6px;
+
+/* Pagination */
+$--pagination-button-size: 38px;
+
+/* Font
+-------------------------- */
+$--font-size-mini: 12px;
+$--font-size-small: 14px;
+$--font-size-base: 16px;
+$--font-size-large: 18px;
+$--font-line-height-primary: 26px;
+
+$--checkbox-font-size: $--font-size-base;
+$--radio-font-size: $--font-size-base;
+$--select-input-font-size: $--font-size-base;
+
+$--size-base: 16px;
+
+$--input-medium-font-size: $--font-size-base;
+$--input-small-font-size: $--font-size-base - 2px;
+$--input-mini-font-size: $--font-size-base - 3px;
+
+$--button-font-size: $--font-size-base;
+$--button-medium-font-size: $--font-size-base;
+$--button-small-font-size: $--font-size-base - 2px;
+$--button-mini-font-size: $--font-size-base - 3px;
+
+$--dialog-font-size: $--font-size-base;
+
+$--button-padding-vertical: calc(
+    #{$--input-height}/ 2 - #{$--button-font-size}/ 2 - 1px
+);
+$--button-medium-padding-vertical: calc(
+    #{$--input-medium-height}/ 2 - #{$--button-medium-font-size}/ 2 - 1px
+);
+$--button-small-padding-vertical: calc(
+    #{$--input-small-height}/ 2 - #{$--button-small-font-size}/ 2 - 1px
+);
+$--button-mini-padding-vertical: calc(
+    #{$--input-mini-height}/ 2 - #{$--button-mini-font-size}/ 2 - 1px
+);
+
+/* icon font path, required */
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+/* Typography */
+$spacer: 1rem !default;
+
+$paragraph-margin-bottom: 1rem !default;
+
+$h1-font-size: $--font-size-base * 1.75 !default;
+$h2-font-size: $--font-size-base * 1.5 !default;
+$h3-font-size: $--font-size-base * 1.25 !default;
+$h4-font-size: $--font-size-base * 1.1 !default;
+$h5-font-size: $--font-size-base !default;
+$h6-font-size: $--font-size-base !default;
+
+$headings-margin-bottom: $spacer / 2 !default;
+$headings-font-family: null !default;
+$headings-font-style: null !default;
+$headings-font-weight: 600 !default;
+$headings-line-height: 1.2 !default;
+$headings-color: null !default;
+
+@import '~element-ui/packages/theme-chalk/src/index';
+
+input,
+textarea,
+button {
+    font-family: 'Lato', sans-serif !important;
+}
+
+label.el-form-item__label, .el-form--label-top .el-form-item__label {
+    font-size: $--font-size-mini;
+    padding-bottom: 2px;
+    line-height: 24px;
+    font-weight: 500;
+}
+
+.el-dialog__body {
+    color: inherit;
+    word-break: normal;
+}
+
+/* Pagination */
+.el-pagination {
+    text-align: center;
+
+    button,
+    .el-pager li {
+        height: $--pagination-button-size;
+        line-height: $--pagination-button-size;
+    }
+
+    .el-pager li {
+        padding: 0 calc(#{$--pagination-button-size}/ 2 - 3px);
+    }
+}
+
+.el-alert {
+    .el-alert__icon {
+        display: none;
+    }
+    .el-alert__content {
+        line-height: 1.2;
+        padding: 0 12px 0 0;
+    }
+}
+
+/* Controls */
+//------------------------------------------------------------------------------
+// Forms
+//------------------------------------------------------------------------------
+
+input,
+textarea,
+button {
+    font-family: 'Lato', sans-serif !important;
+}
+
+label.el-form-item__label, .el-form--label-top .el-form-item__label {
+    font-size: $--font-size-mini;
+    padding-bottom: 2px;
+    line-height: 18px;
+    font-weight: 500;
+}
+
+label {
+    display: block;
+}
+
+.el-form-item {
+    margin-bottom: 14px;
+}
+
+.el-form-item--small.el-form-item {
+    margin-bottom: 12px;
+}
+
+.el-date-editor.el-input {
+    width: 100%;
+}
+
+.el-select {
+    width: 100%;
+}
+
+.el-input-number {
+    width: 100%;
+}
+
+.el-button.block {
+    width: 100%;
+}
+
+.el-form-item.switch {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    &::before,
+    &::after {
+        display: none;
+    }
+}
+
+.el-slider__runway {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.el-radio-group {
+    line-height: inherit;
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    .el-radio {
+        line-height: inherit;
+    }
+    .el-radio-button {
+        flex: 1 1 0px;
+    }
+    .el-radio-button__inner {
+        width: 100%;
+    }
+}
+
+.el-checkbox-group {
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+
+    .el-checkbox-button {
+        flex: 1 1 0px;
+    }
+
+    .el-checkbox-button__inner {
+        width: 100%;
+    }
+}
+
+.link {
+    color: $--color-primary;
+    &:hover,
+    &:active {
+        color: darken($--color-primary, 10%);
+    }
+}
+
+.el-progress.indeterminate {
+    .el-progress-bar__inner {
+        all: initial;
+        * {
+            all: unset;
+        }
+    }
+
+    .el-progress-bar__inner {
+        background-color: $--color-primary;
+        
+        &:before {
+            border-radius: 100px;
+            content: '';
+            position: absolute;
+            background-color: inherit;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            will-change: left, right;
+            animation: indeterminate 2.1s
+                cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+        }
+        &:after {
+            border-radius: 100px;
+            content: '';
+            position: absolute;
+            background-color: inherit;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            will-change: left, right;
+            animation: indeterminate-short 2.1s
+                cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+            animation-delay: 1.15s;
+        }
+    }
+}
+
+.el-card {
+    border-radius: $--border-radius-base * 2;
+}
+
+@-webkit-keyframes indeterminate {
+    0% {
+        left: -35%;
+        right: 100%;
+    }
+    60% {
+        left: 100%;
+        right: -90%;
+    }
+    100% {
+        left: 100%;
+        right: -90%;
+    }
+}
+@keyframes indeterminate {
+    0% {
+        left: -35%;
+        right: 100%;
+    }
+    60% {
+        left: 100%;
+        right: -90%;
+    }
+    100% {
+        left: 100%;
+        right: -90%;
+    }
+}
+@-webkit-keyframes indeterminate-short {
+    0% {
+        left: -200%;
+        right: 100%;
+    }
+    60% {
+        left: 107%;
+        right: -8%;
+    }
+    100% {
+        left: 107%;
+        right: -8%;
+    }
+}
+@keyframes indeterminate-short {
+    0% {
+        left: -200%;
+        right: 100%;
+    }
+    60% {
+        left: 107%;
+        right: -8%;
+    }
+    100% {
+        left: 107%;
+        right: -8%;
+    }
+}

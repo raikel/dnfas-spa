@@ -1,0 +1,8 @@
+export default {
+    SET_ITEMS: 'SET_ITEMS',
+    ADD_ITEM: 'ADD_ITEM',
+    UPDATE_ITEM: 'UPDATE_ITEM',
+    SET_COUNT: 'SET_COUNT',
+    SET_LOADING: 'SET_LOADING',
+    SET_PAGE: 'SET_PAGE'
+};

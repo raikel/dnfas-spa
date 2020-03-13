@@ -1,0 +1,20 @@
+designs/
+dist/
+docs/
+node_modules/
+previews/
+recycle/
+bugs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+tests/**/coverage/
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
