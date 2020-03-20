@@ -1,52 +1,59 @@
 @import './variables.scss';
 @import './mixin.scss';
 @import './transition.scss';
-@import './element-ui.scss';
-@import './element-vars.scss';
+@import './element.scss';
 @import './spacing.scss';
 @import './sidebar.scss';
 
-html {
-  height: 100%;
-  box-sizing: border-box;
-}
+//==============================================================================
+// Basic
+//==============================================================================
 
-#app {
-  height: 100%;
+html {
+    height: 100%;
+    box-sizing: border-box;
 }
 
 *,
 *:before,
 *:after {
-  box-sizing: inherit;
+    box-sizing: inherit;
 }
 
 a:focus,
 a:active {
-  outline: none;
+    outline: none;
 }
 
 a,
 a:focus,
 a:hover {
-  cursor: pointer;
-  color: inherit;
-  text-decoration: none;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+}
+
+.link {
+    color: $--color-primary;
+    &:hover,
+    &:active {
+        color: darken($--color-primary, 10%);
+    }
 }
 
 div:focus {
-  outline: none;
+    outline: none;
 }
 
 .clearfix {
-  &:after {
-    visibility: hidden;
-    display: block;
-    font-size: 0;
-    content: " ";
-    clear: both;
-    height: 0;
-  }
+    &:after {
+        visibility: hidden;
+        display: block;
+        font-size: 0;
+        content: ' ';
+        clear: both;
+        height: 0;
+    }
 }
 
 body {
@@ -74,6 +81,76 @@ body {
     line-height: $headings-line-height;
     color: $headings-color;
 }
+
+//==============================================================================
+// Containers
+//==============================================================================
+
+.app-main {
+    background: #f5f6fa;
+    //padding: 20px;
+}
+
+#app {
+    height: 100%;
+}
+
+//==============================================================================
+// Layout
+//==============================================================================
+
+.flex-row {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.flex-column {
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.flex-row,
+.flex-column {
+    &.jb {
+        justify-content: space-between;
+    }
+
+    &.ja {
+        justify-content: space-around;
+    }
+
+    &.jc {
+        justify-content: center;
+    }
+
+    &.js {
+        justify-content: flex-start;
+    }
+
+    &.je {
+        justify-content: flex-end;
+    }
+
+    &.ac {
+        align-items: center;
+    }
+
+    &.as {
+        align-items: flex-start;
+    }
+
+    &.ae {
+        align-items: flex-end;
+    }
+
+    &.at {
+        align-items: stretch;
+    }
+}
+
+//==============================================================================
+// Headings
+//==============================================================================
 
 h1 {
     @extend %heading;
@@ -105,10 +182,14 @@ h6 {
     font-size: $h6-font-size;
 }
 
+//==============================================================================
+// Text
+//==============================================================================
+
 p {
     margin-top: 0;
     margin-bottom: $paragraph-margin-bottom;
-    font-size: $--font-size-base
+    font-size: $--font-size-base;
 }
 
 .text-upper {
@@ -151,6 +232,10 @@ p {
     font-weight: 300;
 }
 
+//==============================================================================
+// Color classes
+//==============================================================================
+
 .color-primary {
     color: $--color-primary;
 }
@@ -169,6 +254,26 @@ p {
 
 .color-info {
     color: $--color-info;
+}
+
+.color-g5 {
+    color: #5a5e66;
+}
+
+.color-g4 {
+    color: #606266;
+}
+
+.color-g3 {
+    color: #909399;
+}
+
+.color-g2 {
+    color: #c3c3c3ff;
+}
+
+.color-g1 {
+    color: #f4f4f5;
 }
 
 .bg-primary {
@@ -191,24 +296,26 @@ p {
     background-color: $--color-info;
 }
 
-// main-container global css
-/* .app-container {
-  padding: 20px;
-} */
+//==============================================================================
+// Component classes
+//==============================================================================
 
-.app-main {
-  background: #f3f3f3;
-  padding: 20px;
-}
+//------------------------------------------------------------------------------
+// Led
+//------------------------------------------------------------------------------
 
-// Components
 .led {
     width: 14px;
     height: 14px;
-    background-image: radial-gradient(top, #616161 0%, #616161 20%, #535353 60%);
+    background-image: radial-gradient(
+        top,
+        #616161 0%,
+        #616161 20%,
+        #535353 60%
+    );
     border-radius: 50%;
     background: #646464;
-    box-shadow: 0 0 4px #1C1C17;
+    box-shadow: 0 0 4px #1c1c17;
     &.active {
         animation: led-blink 1s infinite;
     }
@@ -216,20 +323,23 @@ p {
 
 @keyframes led-blink {
     from {
-        background: #FF4F4F;
-        box-shadow: 0 0 4px #1C1C17;
+        background: #ff4f4f;
+        box-shadow: 0 0 4px #1c1c17;
     }
 
     50% {
-        background: #FF4F4F;
-        box-shadow: 0 0 6px #1C1C17, 0 0 8px #FF4242;
+        background: #ff4f4f;
+        box-shadow: 0 0 6px #1c1c17, 0 0 8px #ff4242;
     }
 
     to {
-        background: #FF4F4F;
-        box-shadow: 0 0 4px #1C1C17;
+        background: #ff4f4f;
+        box-shadow: 0 0 4px #1c1c17;
     }
 }
+//------------------------------------------------------------------------------
+// Stats
+//------------------------------------------------------------------------------
 
 .stat-info {
     .label {
@@ -263,6 +373,10 @@ p {
     }
 }
 
+//------------------------------------------------------------------------------
+// Others
+//------------------------------------------------------------------------------
+
 .badge-label {
     font-size: 12px;
     color: #ffffff;
@@ -274,56 +388,4 @@ p {
     background-color: #eee;
     border-radius: 6px;
     padding: 8px;
-}
-
-
-// Layout
-
-.flex-row {
-    display: flex;
-    flex-flow: row nowrap;
-}
-
-.flex-column {
-    display: flex;
-    flex-flow: column nowrap;
-}
-
-.flex-row, .flex-column {
-
-    &.jb {
-        justify-content: space-between;
-    }
-
-    &.ja {
-        justify-content: space-around;
-    }
-
-    &.jc {
-        justify-content: center;
-    }
-
-    &.js {
-        justify-content: flex-start;
-    }
-
-    &.je {
-        justify-content: flex-end;
-    }
-
-    &.ac {
-        align-items: center;
-    }
-
-    &.as {
-        align-items: flex-start;
-    }
-
-    &.ae {
-        align-items: flex-end;
-    }
-
-    &.at {
-        align-items: stretch;
-    }
 }

@@ -20,8 +20,7 @@ function fetchItems(context, params) {
 
     params = Object.assign({}, params, filterData, {
         limit: state.pageSize,
-        offset: state.pageNumber * state.pageSize,
-        order_by: state.orderBy
+        offset: state.pageNumber * state.pageSize
     });
 
     context.commit(mutTypes.SET_LOADING, true);

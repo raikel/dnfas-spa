@@ -1,171 +1,225 @@
 <template>
-    <div class="subjects-index">        
 
-        <div class="main">
-            <subjects-list
-                :auto-update="autoUpdate"
-            ></subjects-list>
-        </div>
+<split-view class="subjects-index">
+    <template v-slot:main>
+        <list-header 
+            class="mb-4"
+            :show-count="subjects.length"
+            :total-count="subjectsCount"
+            add-text="Nuevo Sujeto"
+            @create="onCreateSubject"
+        ></list-header>
 
-        <div class="control-panel">
-            <div class="action-bar mb-3">
-                <tool-button
-                    class="mx-1"
-                    tooltip="Actualizar en tiempo real" 
-                    icon="el-icon-timer"
-                    :active="autoUpdate"
-                    @click="autoUpdate = !autoUpdate"
-                ></tool-button>
-
-                <tool-button
-                    class="mx-1"
-                    tooltip="Añadir nuevo registro" 
-                    icon="el-icon-user-solid"
-                    @click="onCreateSubject"
-                ></tool-button>
-
-                <tool-button
-                    class="mx-1"
-                    tooltip="Crear segmento de reconocimiento" 
-                    icon="el-icon-c-scale-to-original"
-                    @click="showSegmentDialog = true"
-                ></tool-button> 
-            </div>
-
-            <el-card>
-                <subjects-filter>                
-                </subjects-filter>
-            </el-card>
-        </div>
+        <subjects-list 
+            :auto-update="autoUpdate"
+            :focus-id="curSubjectId"
+            @update:focus-id="onSubjectListChange"
+        ></subjects-list>
 
         <el-dialog
-            title="Nueva Persona"
-            :visible.sync="showEditorDialog"
-            width="480px"
-            center
-        >
-            <subject-editor 
-                :subject-id="createSubjectId"
-                @confirm="onSubjectEditorConfirm"
-                @cancel="showEditorDialog = false"
-            ></subject-editor>
-        </el-dialog>
-
-        <el-dialog
-            title="Nuevo Segmento"
-            :visible.sync="showSegmentDialog"
+            title="Advertencia"
+            :visible.sync="showDeleteDialog"
             width="400px"
             center
-            top="32px"
         >
-            <segment-editor
-                @confirm="showSegmentDialog = false"
-                @cancel="showSegmentDialog = false"
-            ></segment-editor>
+            <p>
+                ¿Seguro deseas eliminar este registro de forma permanente? 
+                Se eliminará cualquier dato asociado.
+            </p>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showDeleteDialog = false">
+                    Cancelar
+                </el-button>
+                <el-button 
+                    type="primary" 
+                    :disabled="loading"
+                    @click="onConfirmDelete"
+                >
+                    Confirmar
+                </el-button>
+            </span>
         </el-dialog>
-    </div>
+    </template>
+
+    <template v-slot:side-actions>
+        <template v-if="panel === 'search'">
+            <div class="text-lg text-w6">Búsqueda</div>
+            <tool-button
+                class="ml-1"
+                tooltip="Restablecer filtro" 
+                icon="el-icon-refresh"
+                @click="onClearFilterClick"
+            ></tool-button>
+        </template>
+
+        <template v-else-if="panel === 'details'">
+            <div class="text-lg text-w6">Detalles</div>
+            <div class="flex-row">
+                <tool-button
+                    class="ml-1"
+                    tooltip="Editar sujeto" 
+                    icon="el-icon-edit"
+                    @click="onSubjectEdit"
+                ></tool-button>
+                <tool-button
+                    class="ml-1"
+                    tooltip="Eliminar sujeto" 
+                    icon="el-icon-delete"
+                    @click="showDeleteDialog = true"
+                ></tool-button>
+            </div>                 
+        </template>
+
+        <template v-else-if="panel === 'editor'">
+            <div class="text-lg text-w6">Editor</div>
+            <div class="flex-row">
+                <tool-button
+                    class="mx-1"
+                    tooltip="Cancelar edición" 
+                    icon="el-icon-close"
+                    @click="onCancelSubjectEdit"
+                ></tool-button>
+            </div>                    
+        </template>
+    </template>
+
+    <template v-slot:side-content>
+        <subjects-filter 
+            v-if="panel === 'search'"
+        ></subjects-filter>
+
+        <subject-details
+            v-else-if="panel === 'details'"
+            :subject-id="curSubjectId"
+        ></subject-details>
+
+        <subject-editor
+            v-else-if="panel === 'editor'"
+            :edit="curSubjectId !== newSubjectId" 
+            :subject-id="curSubjectId"
+            @confirm="onSubjectEditorConfirm"
+        ></subject-editor>
+    </template>
+</split-view>
+
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
 import ToolButton from '@/components/ToolButton';
 import { subjectModel } from '@/store/modules/subjects/models';
+import ListHeader from '@/components/ListHeader';
+import SplitView from '@/layout/components/SplitView';
 import SubjectsList from './components/SubjectsList';
 import SubjectsFilter from './components/SubjectsFilter';
 import SubjectEditor from './components/SubjectEditor';
-import SegmentEditor from './components/SegmentEditor';
+import SubjectDetails from './components/SubjectDetails';
 
-const CREATE_SUBJECT_ID = 'newId';
+const newSubjectId = 'newId';
 
 export default {
     name: 'SubjectsIndex',
 
     components: {
+        SplitView,
         SubjectsList,
         SubjectsFilter,
+        ListHeader,
         SubjectEditor,
-        SegmentEditor,
+        SubjectDetails,
         ToolButton
     },
 
     data() {
         return {
-            createSubjectId: CREATE_SUBJECT_ID,
-            showEditorDialog: false,
-            showSegmentDialog: false,
-            autoUpdate: false
+            newSubjectId: newSubjectId,
+            autoUpdate: false,
+            panel: 'search',
+            curSubjectId: null,
+            showDeleteDialog: false,
+            loading: false
         };
     },
 
     computed: {
         ...mapGetters({
             subjects: 'subjects/sortedItems'
-        })
+        }),
+        subjectsCount() {
+            return this.$store.state.subjects.count;
+        }
+    },
+
+    created() {
+        this.$store.dispatch('subjects/fetchItems');
     },
 
     methods: {
 
-        onCreateSubject() {
-            var subject = this.$store.state.subjects.items[CREATE_SUBJECT_ID];
-            if (!subject) {
-                const subject = subjectModel.create();
-                subject.id = CREATE_SUBJECT_ID;
-                this.$store.dispatch('subjects/createItem', {
-                    item: subject,
-                    persist: false
-                }).then(() => {
-                    this.showEditorDialog = true;
-                });
-            } else {
-                this.showEditorDialog = true;
-            }          
+        onSubjectEdit() {
+            if (this.curSubjectId !== null) {
+                this.panel = 'editor';
+            }            
         },
 
-        onSubjectEditorConfirm() {
-            this.showEditorDialog = false;
-            this.clearSubject();
+        onCreateSubject() {
+            const subject = subjectModel.create();
+            subject.id = this.newSubjectId;
+            this.$store.dispatch('subjects/createItem', {
+                item: subject,
+                persist: false
+            }).then(() => {
+                this.curSubjectId = this.newSubjectId;
+                this.panel = 'editor';
+            });          
+        },
+
+        onSubjectEditorConfirm(subjectId) {
+            if (this.panel === 'editor' && this.curSubjectId !== null) {
+                this.curSubjectId = subjectId;
+                this.panel = 'details';           
+                this.$store.dispatch('subjects/fetchItems');
+            }            
+        },
+
+        onCancelSubjectEdit() {
+            if (this.panel === 'editor' && this.curSubjectId !== null) {                
+                if (this.curSubjectId === newSubjectId) {
+                    this.curSubjectId = null;
+                    this.panel = 'search';
+                } else {
+                    this.panel = 'details';
+                } 
+            }
+        },
+
+        onSubjectListChange(subjectId) {            
+            this.panel = subjectId === null ? 'search' : 'details';
+            this.curSubjectId = subjectId;
+        },
+
+        onClearFilterClick() {
+            this.$store.dispatch('subjects/resetFilter');
             this.$store.dispatch('subjects/fetchItems');
         },
 
-        clearSubject() {
-            const subject = subjectModel.create();
-            subject.id = CREATE_SUBJECT_ID;
-            this.$store.dispatch('subjects/updateItem', {
-                item: subject,
-                persist: false
-            });
+        onConfirmDelete() {
+            if (this.curSubjectId !== null && this.panel === 'details') {
+                this.loading = true;
+                this.$store.dispatch(
+                    'subjects/destroyItem', this.curSubjectId
+                ).then(() => {
+                    this.loading = false;
+                    this.curSubjectId = null;
+                    this.panel = 'search';
+                    this.showDeleteDialog = false;
+                    this.$store.dispatch('subjects/fetchItems');
+                });
+            }
         }
     }
 };
 </script>
 
 <style lang="scss">
-
-.subjects-index {
-    display: flex;
-    align-items: flex-start;
-
-    .control-panel {
-        width: 300px;
-        flex-basis: 300px;
-        flex-shrink: 0;
-        margin-left: 16px;
-    }
-
-    .action-bar {
-        display: flex;
-        flex-flow: row;
-        justify-content: center;
-        align-items: flex-start;
-    }
-
-    .main {
-        flex-grow: 1;
-    }
-    
-    .el-dialog {
-        margin-bottom: 32px;
-    } 
-}
-
 </style>

@@ -1,76 +1,153 @@
 <template>
 
-<div class="videos-index">
-    <div class="main mr-4">
-        <videos-list :auto-update="autoUpdate"></videos-list>
-    </div>
+<split-view class="videos-index">
+    <template v-slot:main>
+        <list-header 
+            class="mb-4"
+            :show-count="videos.length"
+            :total-count="videosCount"
+            add-text="Nuevo Video"
+            @create="onCreateVideo"
+        ></list-header>
 
-    <div class="control-panel">
-        <div class="action-bar mb-3">
+        <videos-list            
+            :auto-update="autoUpdate"
+            :focus-id="curVideoId"
+            @update:focus-id="onVideoListChange"
+        ></videos-list>
+
+        <el-dialog
+            title="Advertencia"
+            :visible.sync="showDeleteDialog"
+            width="400px"
+            center
+        >
+            <p>
+                ¿Seguro deseas eliminar este registro de forma permanente? 
+                Se eliminará cualquier dato asociado.
+            </p>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showDeleteDialog = false">
+                    Cancelar
+                </el-button>
+                <el-button 
+                    type="primary" 
+                    :disabled="loading"
+                    @click="onConfirmDelete"
+                >
+                    Confirmar
+                </el-button>
+            </span>
+        </el-dialog>
+    </template>
+
+    <template v-slot:side-actions>
+        <template v-if="panel === 'search'">
+            <div class="text-lg text-w6">Búsqueda</div>
             <tool-button
-                class="mx-1"
-                tooltip="Actualizar en tiempo real" 
-                icon="el-icon-timer"
-                :active="autoUpdate"
-                @click="autoUpdate = !autoUpdate"
+                class="ml-1"
+                tooltip="Restablecer filtro" 
+                icon="el-icon-refresh"
+                @click="onClearFilterClick"
             ></tool-button>
+        </template>
 
-            <tool-button
-                class="mx-1"
-                tooltip="Añadir nuevo video" 
-                icon="el-icon-video-camera"
-                @click="showEditorDialog = true"
-            ></tool-button>
-        </div>
+        <template v-else-if="panel === 'details'">
+            <div class="text-lg text-w6">Detalles</div>
+            <div class="flex-row">
+                <tool-button
+                    class="ml-1"
+                    tooltip="Editar video" 
+                    icon="el-icon-edit"
+                    @click="onVideoEdit"
+                ></tool-button>
+                <tool-button
+                    class="ml-1"
+                    tooltip="Eliminar video" 
+                    icon="el-icon-delete"
+                    @click="showDeleteDialog = true"
+                ></tool-button>
+            </div>                 
+        </template>
 
-        <el-card>
-            <video-filter>                
-            </video-filter>
-        </el-card>
-    </div>
+        <template v-else-if="panel === 'editor'">
+            <div class="text-lg text-w6">Editor</div>
+            <div class="flex-row">
+                <tool-button
+                    class="mx-1"
+                    tooltip="Cancelar edición" 
+                    icon="el-icon-close"
+                    @click="onCancelVideoEdit"
+                ></tool-button>
+            </div>                    
+        </template>
+    </template>
 
-    <el-dialog
-        title="Nuevo registro"
-        :visible.sync="showEditorDialog"
-        width="600px"
-        center
-    >
+    <template v-slot:side-content>
+        <videos-filter 
+            v-if="panel === 'search'"
+        ></videos-filter>
+
+        <video-details
+            v-else-if="panel === 'details'"
+            :video-id="curVideoId"
+        ></video-details>
+
         <video-editor
-            :video-id="editVideoId"
+            v-else-if="panel === 'editor'"
+            :edit="curVideoId !== newVideoId" 
+            :video-id="curVideoId"
             @confirm="onVideoEditorConfirm"
-            @cancel="onVideoEditorCancel"
         ></video-editor>
-    </el-dialog>
-</div>
+    </template>
+</split-view>
 
 </template>
 
 <script>
-
-import { videoModel } from '@/store/modules/videos/models';
+import { mapGetters } from 'vuex';
 import ToolButton from '@/components/ToolButton';
+import { videoModel } from '@/store/modules/videos/models';
+import ListHeader from '@/components/ListHeader';
+import SplitView from '@/layout/components/SplitView';
 import VideosList from './components/VideosList';
+import VideosFilter from './components/VideosFilter';
 import VideoEditor from './components/VideoEditor';
-import VideoFilter from './components/VideoFilter';
+import VideoDetails from './components/VideoDetails';
 
-const editVideoId = 'newId';
+const newVideoId = 'newId';
 
 export default {
     name: 'VideosIndex',
 
     components: {
+        SplitView,
         VideosList,
+        VideosFilter,
+        ListHeader,
         VideoEditor,
-        VideoFilter,
+        VideoDetails,
         ToolButton
     },
 
     data() {
         return {
-            editVideoId: editVideoId,
             autoUpdate: false,
-            showEditorDialog: false
+            panel: 'search',
+            curVideoId: null,
+            showDeleteDialog: false,
+            loading: false,
+            newVideoId: newVideoId
         };
+    },
+
+    computed: {
+        ...mapGetters({
+            videos: 'videos/sortedItems'
+        }),
+        videosCount() {
+            return this.$store.state.videos.count;
+        }
     },
 
     created() {
@@ -78,65 +155,71 @@ export default {
     },
 
     methods: {
-        onCreateVideo() {
-            var video = this.$store.state.videos.items[this.editVideoId];
-            if (!video) {
-                const video = videoModel.create();
-                video.id = this.editVideoId;
-                this.$store.dispatch('videos/createItem', {
-                    item: video,
-                    persist: false
-                }).then(() => {
-                    this.showEditorDialog = true;
-                });
-            } else {
-                this.showEditorDialog = true;
-            }          
+
+        onVideoEdit() {
+            if (this.curVideoId !== null) {
+                this.panel = 'editor';
+            }            
         },
 
-        onVideoEditorConfirm() {
-            this.showEditorDialog = false;
-            this.clearVideo();
+        onCreateVideo() {
+            const video = videoModel.create();
+            video.id = newVideoId;
+            this.$store.dispatch('videos/createItem', {
+                item: video,
+                persist: false
+            }).then(() => {
+                this.curVideoId = newVideoId;
+                this.panel = 'editor';
+            });          
+        },
+
+        onVideoEditorConfirm(videoId) {
+            if (this.panel === 'editor' && this.curVideoId !== null) {
+                this.curVideoId = videoId;
+                this.panel = 'details';            
+                this.$store.dispatch('videos/fetchItems');
+            }            
+        },
+
+        onCancelVideoEdit() {
+            if (this.panel === 'editor' && this.curVideoId !== null) {                
+                if (this.curVideoId === newVideoId) {
+                    this.curVideoId = null;
+                    this.panel = 'search';
+                } else {
+                    this.panel = 'details';
+                } 
+            }
+        },
+
+        onVideoListChange(videoId) {            
+            this.panel = videoId === null ? 'search' : 'details';
+            this.curVideoId = videoId;
+        },
+
+        onClearFilterClick() {
+            this.$store.dispatch('videos/resetFilter');
             this.$store.dispatch('videos/fetchItems');
         },
 
-        clearVideo() {
-            const video = videoModel.create();
-            video.id = this.editVideoId;
-            this.$store.dispatch('videos/updateItem', {
-                item: video,
-                persist: false
-            });
-        },
-
-        onVideoEditorCancel() {
-            this.showEditorDialog = false;
+        onConfirmDelete() {
+            if (this.curVideoId !== null && this.panel === 'details') {
+                this.loading = true;
+                this.$store.dispatch(
+                    'videos/destroyItem', this.curVideoId
+                ).then(() => {
+                    this.loading = false;
+                    this.curVideoId = null;
+                    this.panel = 'search';
+                    this.showDeleteDialog = false;
+                    this.$store.dispatch('videos/fetchItems');
+                });
+            }
         }
     }
 };
 </script>
 
 <style lang="scss">
-
-.videos-index {
-    display: flex;
-    align-items: flex-start;
-
-    .control-panel {
-        width: 300px;
-        flex-shrink: 0;
-    }
-
-    .action-bar {
-        display: flex;
-        flex-flow: row;
-        justify-content: center;
-        align-items: flex-start;
-    }
-
-    .main {
-        flex-grow: 1;
-    }
-}
-
 </style>

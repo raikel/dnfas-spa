@@ -17,6 +17,7 @@
 
     <el-form
         ref="form"
+        size="small"
         :rules="rules"
         :model="video"
         label-position="top"
@@ -32,14 +33,9 @@
         <div class="buttons mt-6">
             <el-button
                 :disabled="loading"
-                @click="onCancel"
-            >
-                Cancelar
-            </el-button>
-
-            <el-button
-                :disabled="loading"
-                type="primary" 
+                size="small"
+                type="primary"
+                icon="el-icon-check" 
                 @click="onConfirm"
             >
                 Confirmar
@@ -76,8 +72,7 @@ export default {
 
     data() {
         return {
-            error: false,
-            errorMessage: '',
+            alert: null,
             loading: false,
             rules: rules
         };
@@ -85,6 +80,7 @@ export default {
 
     computed: {
         video() {
+            this.$store.dispatch('videos/getItem', this.videoId);
             return this.$store.state.videos.items[this.videoId];
         }
     },
@@ -115,17 +111,13 @@ export default {
             this.$store.dispatch(action, {
                 item: this.video,
                 persist: true
-            }).then(() => {                
+            }).then(video => {                
                 this.loading = false;
-                this.$emit('confirm');
+                this.$emit('confirm', video.id);
             }).catch((error) => {                
                 this.$log.error(error);
                 this.loading = false;
             });
-        },
-
-        onCancel() {
-            this.$emit('cancel');
         },
 
         validate(prop, valid, errorMsg) {

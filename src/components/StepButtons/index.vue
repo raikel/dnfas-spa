@@ -3,40 +3,44 @@
 <div class="step-buttons" :class="{'single': step === 0}">
     <el-button
         v-if="step > 0"
-        :disabled="disabled" 
+        :disabled="disabled"
+        :size="size"  
         type="text"
         @click="$emit('prev')"
     >
         <i class="el-icon-arrow-left"></i> Anterior                
     </el-button>
 
-    <div>
-        <el-button
-            :disabled="disabled"
-            @click="$emit('cancel')"
-        >
-            Cancelar
-        </el-button>
+    <el-button
+        v-if="cancel"
+        icon="el-icon-close"
+        :disabled="disabled" 
+        :size="size" 
+        @click="$emit('cancel')"
+    >
+        Cancelar
+    </el-button>
 
-        <el-button
-            v-if="step !== (nSteps - 1)"
-            :disabled="disabled"
-            type="primary"
-            @click="$emit('next')"
-        >
-            Siguiente <i class="el-icon-arrow-right"></i>
-        </el-button>
+    <el-button
+        v-if="step !== (nSteps - 1)"
+        :disabled="disabled"
+        :size="size"
+        type="primary"
+        @click="$emit('next')"
+    >
+        Siguiente <i class="el-icon-arrow-right"></i>
+    </el-button>
 
-        <el-button
-            v-else
-            :disabled="disabled"
-            type="primary"
-            @click="$emit('confirm')"
-        >
-            <i class="el-icon-check"></i>
-            Confirmar 
-        </el-button>    
-    </div>
+    <el-button
+        v-else
+        :disabled="disabled"
+        :size="size"
+        type="primary"
+        @click="$emit('confirm')"
+    >
+        <i class="el-icon-check"></i>
+        Confirmar 
+    </el-button>
 </div>
 </template>
 
@@ -58,6 +62,14 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        size: {
+            type: String,
+            default: 'medium'
+        },
+        cancel: {
+            type: Boolean,
+            default: false
         }
     }
 };
@@ -70,7 +82,7 @@ export default {
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
-    .single {
+    &.single {
         justify-content: flex-end;
     }
 }

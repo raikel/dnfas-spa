@@ -1,7 +1,7 @@
 <template>
 
-<div v-if="demograp" class="demograp">
-    <div class="main mr-4">
+<split-view class="demograp-index">
+    <template v-slot:main>
         <div class="charts">            
             <el-card class="bar-chart-card mr-2">
                 <h4 class="card-title mb-1"> {{ ageChartData.title }} </h4>
@@ -50,42 +50,51 @@
             </el-card>
         </div>
 
-        <demograp-list class="mt-5"></demograp-list>
-    </div>
+        <list-header 
+            class="mb-3 mt-5"
+            :add-button="false"
+            :show-count="subjects.length"
+            :total-count="subjectsCount"
+        ></list-header>
 
-    <div class="control-panel">
-        <div class="action-bar mb-3">
-            <tool-button
-                class="mx-1"
-                tooltip="Actualizar en tiempo real" 
-                icon="el-icon-timer"
-                :active="autoUpdate"
-                @click="autoUpdate = !autoUpdate"
-            ></tool-button>
-        </div>
+        <demograp-list></demograp-list>
+    </template>
 
-        <el-card>
-            <subjects-filter @change="onFilterChange">                
-            </subjects-filter>
-        </el-card>
-    </div>
-</div>
+    <template v-slot:side-actions>
+        <div class="text-lg text-w6">Búsqueda</div>
+        <tool-button
+            class="ml-1"
+            tooltip="Restablecer filtro" 
+            icon="el-icon-refresh"
+            @click="onClearFilter"
+        ></tool-button>
+    </template>
+
+    <template v-slot:side-content>
+        <demograp-filter></demograp-filter>
+    </template>
+</split-view>
 
 </template>
 
 <script>
+
+import { mapGetters } from 'vuex';
+import ListHeader from '@/components/ListHeader';
 import BarChart from '@/components/charts/BarChart';
 import PieChart from '@/components/charts/PieChart';
 import ToolButton from '@/components/ToolButton';
-import { demograpModel } from '@/store/modules/subjects/models';
-import SubjectsFilter from './components/SubjectsFilter';
+import SplitView from '@/layout/components/SplitView';
+import DemograpFilter from './components/DemograpFilter';
 import DemograpList from './components/DemograpList';
 
 export default {
-    name: 'Demograp',
+    name: 'DemograpIndex',
 
     components: {
-        SubjectsFilter,
+        ListHeader,
+        SplitView,
+        DemograpFilter,
         DemograpList,
         ToolButton,
         BarChart,
@@ -94,12 +103,22 @@ export default {
 
     data() {
         return {
-            autoUpdate: false,
-            demograp: demograpModel.create()
         };
     },
 
     computed: {
+        ...mapGetters({
+            subjects: 'demograp/sortedItems'
+        }),
+
+        subjectsCount: function() {
+            return this.$store.state.demograp.count;
+        },
+
+        demograp() {
+            return this.$store.state.demograp.stats;
+        },
+
         ageChartData() {
             const menMax = Math.max(...this.demograp.menAges.counts);
             const womenMax = Math.max(...this.demograp.womenAges.counts);
@@ -156,20 +175,11 @@ export default {
     },
 
     created() {
-        this.updateDemograp();
+        this.$store.dispatch('demograp/fetchStats');
+        this.$store.dispatch('demograp/fetchItems');
     },
 
     methods: {
-        onFilterChange() {
-            this.updateDemograp();
-        },
-
-        updateDemograp() {
-            this.$store.dispatch('subjects/fetchDemograp').then(data => {
-                this.demograp = data;
-            });
-        },
-
         labelText(labels) {
             return labels.map((label, index) => {
                 if (index === 0) {
@@ -180,6 +190,11 @@ export default {
                     return `${label}-${labels[index + 1]}`;
                 }
             });
+        },
+
+        onClearFilter() {
+            this.$store.dispatch('demograp/resetFilter');
+            this.$store.dispatch('demograp/fetchItems');
         }
     }
 };
@@ -187,26 +202,7 @@ export default {
 
 <style lang="scss">
 
-.demograp {
-    display: flex;
-    align-items: flex-start;
-
-    .control-panel {
-        width: 300px;
-        flex-basis: 300px;
-        flex-shrink: 0;
-    }
-
-    .action-bar {
-        display: flex;
-        flex-flow: row;
-        justify-content: center;
-        align-items: flex-start;
-    }
-
-    .main {
-        flex-grow: 1;
-    }
+.demograp-index {
 
     .card-title {
         text-align: center;

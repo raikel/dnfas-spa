@@ -1,90 +1,43 @@
 <template>
 
 <div v-if="camera" class="camera-details">
+    <video-player 
+        v-if="camera.streamUrl" 
+        :src="camera.streamUrl"
+        class="mb-3"
+    ></video-player>
 
-    <div class="main">
-        <video-player 
-            v-if="camera.streamUrl" 
-            :src="camera.streamUrl"
-        ></video-player>
+    <info-list :items="infoItems">
+    </info-list>
+
+    <div class="text-sm text-w6 color-g5 mb-1 mt-2">
+        Mapa
     </div>
-
-    <div class="control-panel ml-3">
-
-        <div class="action-bar mb-3">
-            <tool-button
-                class="mx-1"
-                tooltip="Actualizar en tiempo real" 
-                icon="el-icon-timer"
-                :active="autoUpdate"
-                @click="autoUpdate = !autoUpdate"
-            ></tool-button>
-
-            <tool-button
-                class="mx-1"
-                tooltip="Editar cámara" 
-                icon="el-icon-edit"
-                @click="showEditorDialog = true"
-            ></tool-button>
-
-            <tool-button
-                class="mx-1"
-                tooltip="Elimimar cámara" 
-                icon="el-icon-delete"
-                @click="showDeleteDialog = true"
-            ></tool-button> 
-        </div>
-    </div>
-
-    <el-dialog
-        title="Editar cámara"
-        :visible.sync="showEditorDialog"
-        width="900px"
-        center
-    >
-        <camera-editor
-            :edit="true"
-            @confirm="onCameraEditorConfirm"
-            @cancel="onCameraEditorCancel"
-        ></camera-editor>
-    </el-dialog>
-
-    <el-dialog
-        title="Advertencia"
-        :visible.sync="showDeleteDialog"
-        width="400px"
-        center
-    >
-        <p>
-            ¿Seguro deseas eliminar esta cámara de forma permanente? 
-            Se eliminará cualquier dato asociados.
-        </p>
-        <span slot="footer" class="dialog-footer">
-            <el-button @click="showDeleteDialog = false">
-                Cancelar
-            </el-button>
-            <el-button type="primary" @click="onConfirmDelete">
-                Confirmar
-            </el-button>
-        </span>
-    </el-dialog> 
+    <map-locate
+        v-if="hasLocation"
+        :edit="false"
+        :value="{
+            lat: camera.locationLat,
+            lng: camera.locationLon
+        }"
+    ></map-locate>
 </div>
     
 </template>
 
 <script>
 
-import CameraEditor from './CameraEditor';
 import VideoPlayer from '@/components/VideoPlayer';
-import ToolButton from '@/components/ToolButton';
+import MapLocate from '@/components/MapLocate';
+import InfoList from '@/components/InfoList';
 
 export default {
     name: 'CameraDetails',
 
     components: {
        VideoPlayer,
-       CameraEditor,
-       ToolButton
+       MapLocate,
+       InfoList
     },
 
     props: {
@@ -96,9 +49,6 @@ export default {
 
     data() {
         return {
-            showEditorDialog: false,
-            showDeleteDialog: false,
-            autoUpdate: false
         };
     },
 
@@ -106,24 +56,31 @@ export default {
         camera() {
             this.$store.dispatch('cameras/getItem', this.cameraId);
             return this.$store.state.cameras.items[this.cameraId];
-        }
-    },
-
-    methods: {
-        onCameraEditorConfirm() {
-            this.showEditorDialog = false;
         },
 
-        onCameraEditorCancel() {
-            this.showEditorDialog = false;
+        hasLocation() {
+            return this.camera.locationLat && this.camera.locationLon;
         },
 
-        onConfirmDelete() {
-            this.$store.dispatch(
-                'cameras/destroyItem', this.cameraId
-            ).then(() => {
-                this.$router.push({ name: 'CamerasIndex' });
-            });
+        infoItems() {
+            const camera = this.camera;
+            const location = `${camera.locationLat}, ${camera.locationLat}`;
+
+            const info = [{
+                name: 'Nombre',
+                value: camera.name || 'No establecido'
+            }, {
+                name: 'Ubicación',
+                value: camera.address || 'No establecida'
+            }, {
+                name: 'Localización geográfica',
+                value: this.hasLocation ? location : 'No establecido'
+            }, {
+                name: 'Captura de vídeo',
+                value: camera.streamUrl || 'No establecida'
+            }];
+
+            return info;
         }
     }
 };
@@ -132,24 +89,9 @@ export default {
 <style lang="scss">
 
 .camera-details {
-
-    display: flex;
-    align-items: flex-start;
-
-    .control-panel {
-        width: 350px;
-        flex-shrink: 0;
-    }
-
-    .action-bar {
-        display: flex;
-        flex-flow: row;
-        justify-content: center;
-        align-items: flex-start;
-    }
-
-    .main {
-        flex-grow: 1;
+    .map-locate {
+        width: 100%;
+        height: 400px;
     }
 }
 

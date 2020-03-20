@@ -69,6 +69,10 @@ export default {
             type: Number,
             default: 16,
             required: false
+        },
+        edit: {
+            type: Boolean,
+            default: true
         }
     },
 
@@ -131,45 +135,47 @@ export default {
 
         const self = this;
 
-        this.map.addEventListener('dragstart', function(ev) {
-            if (ev.target instanceof H.map.Marker) {
-                self.behavior.disable();
-            }
-        }, false);
+        if (this.edit) {
+            this.map.addEventListener('dragstart', function(ev) {
+                if (ev.target instanceof H.map.Marker) {
+                    self.behavior.disable();
+                }
+            }, false);
 
-        this.map.addEventListener('dragend', function(ev) {
-            if (ev.target instanceof H.map.Marker) {
-                self.behavior.enable();
-                const position = self.marker.getPosition();
-                self.$emit(EVENT_LOCATION_CHANGED, {
-                    lat: position.lat, 
-                    lng: position.lng
-                });
-            }
-        }, false);
+            this.map.addEventListener('dragend', function(ev) {
+                if (ev.target instanceof H.map.Marker) {
+                    self.behavior.enable();
+                    const position = self.marker.getPosition();
+                    self.$emit(EVENT_LOCATION_CHANGED, {
+                        lat: position.lat, 
+                        lng: position.lng
+                    });
+                }
+            }, false);
 
-        this.map.addEventListener('drag', function(ev) {
-            if (ev.target instanceof H.map.Marker) {
-                ev.target.setPosition(self.map.screenToGeo(
-                    ev.currentPointer.viewportX, ev.currentPointer.viewportY)
-                );
-            }
-        }, false);
+            this.map.addEventListener('drag', function(ev) {
+                if (ev.target instanceof H.map.Marker) {
+                    ev.target.setPosition(self.map.screenToGeo(
+                        ev.currentPointer.viewportX, ev.currentPointer.viewportY)
+                    );
+                }
+            }, false);
 
-        this.map.addEventListener('dbltap', function(ev) {
-            if (!self.marker) {
-                const location = self.map.screenToGeo(
-                    ev.currentPointer.viewportX, 
-                    ev.currentPointer.viewportY
-                );                
-                self.createMarker(location);             
-                self.setView(location);
-                self.$emit(EVENT_LOCATION_CHANGED, {
-                    lat: location.lat, 
-                    lng: location.lng
-                });
-            }
-        }, false);
+            this.map.addEventListener('dbltap', function(ev) {
+                if (!self.marker) {
+                    const location = self.map.screenToGeo(
+                        ev.currentPointer.viewportX, 
+                        ev.currentPointer.viewportY
+                    );                
+                    self.createMarker(location);             
+                    self.setView(location);
+                    self.$emit(EVENT_LOCATION_CHANGED, {
+                        lat: location.lat, 
+                        lng: location.lng
+                    });
+                }
+            }, false);
+        }        
     },
 
     destroy() {
@@ -208,13 +214,15 @@ export default {
         onQueryPlaceSelected(place) {
             const location = place.location;
             
-            if (this.marker) {
-                this.$emit(EVENT_LOCATION_CHANGED, {
-                    lat: location.lat, 
-                    lng: location.lng
-                });
-                this.setMarkerLocation(location);
-            }            
+            if (this.edit) {
+                if (this.marker) {
+                    this.$emit(EVENT_LOCATION_CHANGED, {
+                        lat: location.lat, 
+                        lng: location.lng
+                    });
+                    this.setMarkerLocation(location);
+                } 
+            }          
             
             this.setView(location);          
         },

@@ -10,6 +10,7 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 tests/**/coverage/
+gitpush.sh
 
 # Editor directories and files
 .idea

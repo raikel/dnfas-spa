@@ -1,11 +1,19 @@
 <template>
 
 <div class="cameras-filter">
-    <h2 class="text-lg mb-4">Buscar Cámaras</h2>
     <el-form
         label-position="top"
+        size="small"
         :disabled="loading"
     >
+        <el-form-item label="Ordenar por">
+            <order-select
+                :order-choices="orderChoices"
+                :value="filter.orderBy"                    
+                @change="val => onParamChange({orderBy: val})"
+            ></order-select>           
+        </el-form-item>
+
         <el-form-item label="Nombre">
             <el-input
                 clearable
@@ -21,17 +29,6 @@
                 @input="val => onParamChange({address: val})"
             ></el-input>
         </el-form-item>
-
-        <el-button
-            type="info"
-            icon="el-icon-refresh"
-            class="block mt-3"
-            :disabled="loading"
-            @click="onClearClick"             
-        >
-            Limpiar filtro
-        </el-button>
-
     </el-form>
 </div>
 
@@ -39,12 +36,20 @@
 
 <script>
 
+import OrderSelect from '@/components/OrderSelect';
+import { orderChoices } from './data';
+
 export default {
     name: 'CamerasFilter',
 
+    components: {
+        OrderSelect
+    },
+
     data() {
         return {
-            loading: false
+            loading: false,
+            orderChoices: orderChoices
         };
     },
 
@@ -58,11 +63,6 @@ export default {
 
         onParamChange(data) {
             this.$store.dispatch('cameras/setFilter', data);
-            this.$store.dispatch('cameras/fetchItems');
-        },
-
-        onClearClick() {
-            this.$store.dispatch('cameras/resetFilter');
             this.$store.dispatch('cameras/fetchItems');
         }
     }

@@ -3,6 +3,7 @@
 <el-form
     v-if="config"
     ref="form"
+    size="small"
     class="pgatask-config"
     label-position="top"
     :show-message="false"

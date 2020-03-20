@@ -12,6 +12,9 @@ const SET_SORT = (state, sortId) => {
 
 const DEL_ITEM = (state, id) => {
     Vue.delete(state.items, id);
+    if (state.sortId) {
+        state.sortId = state.sortId.filter(sortId => sortId !== id);
+    }    
 };
 
 const SET_ITEM = (state, item) => {
@@ -34,7 +37,7 @@ const SET_LOADING = (state, loading) => {
 
 const SET_FILTER = (state, filter) => {
     for (const key in filter) {
-        state.filter[key] = filter[key];
+        Vue.set(state.filter, key, filter[key]);
     }
 };
 

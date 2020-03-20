@@ -1,7 +1,7 @@
 <template>
 
-<div class="subject-editor">
-    <div v-if="activeStep === 0">
+<div v-if="subject" class="subject-editor">
+    <div v-if="step === 0">
         <el-carousel 
             v-if="faces.length > 0"
             :autoplay="false" 
@@ -19,7 +19,7 @@
                     <el-button 
                         icon="el-icon-delete" 
                         type="text"
-                        @click="onDeleteFaceClick(face.id)"
+                        @click="onDeleteFace(face.id)"
                     >
                         Eliminar
                     </el-button>
@@ -28,10 +28,10 @@
         </el-carousel>
         <empty
             v-else
-            v-loading="inProgress"
+            v-loading="loading"
             element-loading-text="Analizando la imagen..."
-            title="Imagen de análisis"
-            message="Carga una imagen para iniciar el análisis y obtener los resultados"
+            title="Imágenes"
+            message="Selecciona una imagen"
             icon-size="3em"
             height="300px"
             icon="el-icon-camera-solid"
@@ -56,7 +56,7 @@
             :before-upload="onBeforeUploadImage"
             :on-success="onSuccessImageUpload"
             :on-error="onImageUploadOnError"
-            :disabled="inProgress"
+            :disabled="loading"
             :show-file-list="false"
             accept="image/png, image/jpeg"
         >
@@ -68,20 +68,21 @@
     </div>
 
     <el-form
-        v-else-if="activeStep === 1"
+        v-else-if="step === 1"
         ref="step1"
         label-position="top"
+        size="small"
         :show-message="false"
         :rules="rules.step1"
         :model="subject"
-        :disabled="inProgress"
+        :disabled="loading"
         @validate="validate"         
     >
-        <el-form-item label="Nombre Completo" prop="name">
+        <el-form-item label="Nombre" prop="name">
             <el-input
                 placeholder="Ingresa el nombre del sujeto"
                 :value="subject.name"                    
-                @input="val => onParamChange('name', val)"                    
+                @input="val => onParamChange({name: val})"                    
             ></el-input>
         </el-form-item>
 
@@ -89,7 +90,7 @@
             <el-input
                 placeholder="Ingresa los apellidos del sujeto"
                 :value="subject.lastName"                    
-                @input="val => onParamChange('lastName', val)"
+                @input="val => onParamChange({lastName: val})"
             ></el-input>
         </el-form-item>
 
@@ -99,7 +100,7 @@
                 placeholder="Selecciona una fecha"
                 style="width: 100%;"
                 :value="subject.birthdate"                    
-                @input="val => onParamChange('birthdate', val)"
+                @input="val => onParamChange({birthdate: val})"
             ></el-date-picker>
         </el-form-item>
 
@@ -109,11 +110,11 @@
         >
             <el-select
                 :value="subject.sex"                    
-                @change="val => onParamChange('sex', val)"
+                @change="val => onParamChange({sex: val})"
             >
                 <el-option
-                    v-for="(sex, index) in sexOptions"
-                    :key="index"
+                    v-for="sex in sexChoices"
+                    :key="sex.value"
                     :label="sex.label"
                     :value="sex.value"
                 ></el-option>
@@ -126,11 +127,11 @@
         >
             <el-select
                 :value="subject.skin"                    
-                @change="val => onParamChange('skin', val)"
+                @change="val => onParamChange({skin: val})"
             >
                 <el-option
-                    v-for="(skin, index) in skinOptions"
-                    :key="index"
+                    v-for="skin in skinChoices"
+                    :key="skin.value"
                     :label="skin.label"
                     :value="skin.value"
                 ></el-option>
@@ -139,55 +140,28 @@
 
     </el-form>
 
-    <div class="step-buttons mt-4" :class="{'single': activeStep === 0}">
-        <el-button
-            v-if="activeStep > 0"
-            :disabled="inProgress" 
-            type="text"
-            @click="prevStep"
-        >
-            <i class="el-icon-arrow-left"></i> Anterior                
-        </el-button>
-
-        <div>
-            <el-button
-                :disabled="inProgress"
-                @click="onCancelClick"
-            >
-                Cancelar
-            </el-button>
-
-            <el-button
-                v-if="activeStep !== (nSteps - 1)"
-                :disabled="inProgress"
-                type="primary"
-                @click="nextStep"
-            >
-                Siguiente <i class="el-icon-arrow-right"></i>
-            </el-button>
-
-            <el-button
-                v-else
-                :disabled="inProgress"
-                type="primary"
-                @click="onConfirm"
-            >
-                <i class="el-icon-check"></i>
-                Confirmar 
-            </el-button>    
-        </div>                    
-    </div>
+    <step-buttons 
+        class="mt-5"
+        :step="step"
+        :n-steps="nSteps"
+        :disabled="loading"
+        size="small"
+        @prev="onPrevStep"
+        @next="onNextStep"
+        @confirm="onNextStep"
+    ></step-buttons>
 </div>
 
 </template>
 
 <script>
 import { API_URL, getHeader } from '@/api';
-import { subjectModel } from '@/store/modules/subjects/models';
 import Empty from '@/components/Empty';
+import StepButtons from '@/components/StepButtons';
 import ImageOverlay from '@/components/ImageOverlay';
+import { sexChoices, skinChoices } from './data';
 
-const FORM_RULES = {
+const formRules = {
     step1: {
         name: [{
             required: true,
@@ -199,26 +173,8 @@ const FORM_RULES = {
             message: 'Por favor ingresa una fecha válida',
             trigger: 'blur'
         }]
-    }};
-
-const SEX_OPTIONS = [{
-    label: 'Hombre',
-    value: subjectModel.SEX_MAN
-}, {
-    label: 'Mujer',
-    value: subjectModel.SEX_WOMAN
-}];
-
-const SKIN_OPTIONS = [{
-    label: 'Blanca',
-    value: subjectModel.SKIN_WHITE
-}, {
-    label: 'Negra',
-    value: subjectModel.SKIN_BLACK
-}, {
-    label: 'Morena',
-    value: subjectModel.SKIN_BROWN
-}];
+    }
+};
 
 const MULTI_FACE_MSG = 'Advertencia: se ha detectado más de un rostro en la ' + 
                     'imagen. Se asociará solo el primer rostro detectado.';
@@ -231,7 +187,8 @@ export default {
 
     components: {
         Empty,
-        ImageOverlay
+        ImageOverlay,
+        StepButtons
     },
     
     props: {
@@ -251,17 +208,18 @@ export default {
             imageUploadUrl: API_URL + 'frames/',
             imageUploadHeader: getHeader(),
             nSteps: 2,
-            activeStep: 0,
-            inProgress: false,
+            step: 0,
+            loading: false,
             alert: null,
-            sexOptions: SEX_OPTIONS,
-            skinOptions: SKIN_OPTIONS,
-            rules: FORM_RULES
+            sexChoices: sexChoices,
+            skinChoices: skinChoices,
+            rules: formRules
         };
     },
 
     computed: {
         subject() {
+            this.$store.dispatch('subjects/getItem', this.subjectId);
             return this.$store.state.subjects.items[this.subjectId];
         },
         faces() {
@@ -281,18 +239,15 @@ export default {
 
     methods: {
 
-        onParamChange(key, value) {
+        onParamChange(data) {
             this.$store.dispatch('subjects/updateItem', {
-                item: { 
-                    id: this.subjectId, 
-                    [key]: value 
-                }, 
+                item: { id: this.subjectId, ...data }, 
                 persist: false
             });
         },
 
         onBeforeUploadImage(file) {
-            this.inProgress = true;
+            this.loading = true;
         },
 
         onSuccessImageUpload(response, file) {
@@ -301,7 +256,7 @@ export default {
             ).then((faces) => {
                 if (faces.length) {
                     const facesId = [faces[0], ...this.subject.faces];
-                    this.onParamChange('faces', facesId);
+                    this.onParamChange({ faces: facesId});
                     if (faces.length > 1) {
                         this.alert = {
                             type: 'warning',
@@ -321,75 +276,66 @@ export default {
                 };
                 this.$log.error(error);
             }).finally(() => {
-                this.inProgress = false;
+                this.loading = false;
             });       
         },
 
         onImageUploadOnError(error, file, fileList) {
-            this.inProgress = false;
+            this.loading = false;
             this.$log(error);
         },
 
-        onDeleteFaceClick(faceId) {
-            this.inProgress = true;
+        onDeleteFace(faceId) {
+            this.loading = true;
             const facesId = this.subject.faces.filter(id => id === facesId);
-            this.onParamChange('faces', facesId);
+            this.onParamChange({faces: facesId});
             this.$store.dispatch(
                 'faces/destroyItem', faceId
             ).catch((error) => {                
                 this.$log.error(error);
             })
             .finally(() => {
-                this.inProgress = false;
+                this.loading = false;
             });
         },
 
-        nextStep() {
-            if (this.activeStep === 0) {
-                this.activeStep++;
+        onNextStep() {
+            if (this.step === 0) {
+                this.step++;
             } else {
-                const form = this.$refs[`step${this.activeStep}`];
-                const nextStep = Math.min(this.nSteps - 1, this.activeStep + 1);
+                const form = this.$refs[`step${this.step}`];
+                const nextStep = Math.min(this.nSteps - 1, this.step + 1);
                 if (form) {
                     form.validate((valid) => {
-                        if (valid) {
-                            this.activeStep = nextStep;
+                        if (this.step === this.nSteps - 1) {
+                            this.submit();
+                        } else {
+                            this.step = nextStep;
                         }
                     }); 
                 } else {
-                    this.activeStep = nextStep;
+                    this.step = nextStep;
                 }   
             }
         },
 
-        prevStep() {
-            this.activeStep = Math.max(0, this.activeStep - 1);
+        onPrevStep() {
+            this.step = Math.max(0, this.step - 1);
         },
 
-        onConfirm() {
+        submit() {
             const action = this.edit ? 
                 'subjects/updateItem' : 'subjects/createItem';
             this.$store.dispatch(action, {
                 item: this.subject,
                 persist: true
-            }).then(() => {                
-                this.inProgress = false;
-                this.reset();
-                this.$emit('confirm');
+            }).then(subject => {                
+                this.loading = false;
+                this.$emit('confirm', subject.id);
             }).catch((error) => {                
                 this.$log.error(error);
-                this.inProgress = false;
+                this.loading = false;
             });
-        },
-
-        onCancelClick() {
-            this.reset();
-            this.$emit('cancel');
-        },
-
-        reset() {
-            this.alert = null;
-            this.activeStep = 0;
         },
 
         validate(prop, valid, errorMsg) {
@@ -419,50 +365,6 @@ export default {
     }
     .el-carousel__indicators {
         display: none;
-    }
-
-    .upload {
-        display: flex;
-        flex-flow: column nowrap;
-        margin-bottom: 25px;
-    }
-    .el-upload {
-        border: none;
-        width: 100%;
-        height: auto;
-        margin-top: 16px;
-    }
-    .el-upload-dragger {
-        width: 100%;        
-        height: 84px;
-        display: flex;
-        flex-flow: column nowrap;
-        align-items: center;
-        line-height: initial;
-    }
-    .el-upload-list--picture-card {
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: center;
-    }
-    .el-upload-dragger .el-icon-upload {
-        margin: 12px 0 8px 0;
-        font-size: 32px;
-        line-height: initial;
-        /* display: none */
-    }
-    .step-buttons {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .step-buttons.single {
-        justify-content: flex-end;
-    }
-    .el-form-item__label {
-        line-height: 1em;
-        padding-bottom: 6px;
     }
 }
 </style>

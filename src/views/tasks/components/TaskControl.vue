@@ -1,70 +1,36 @@
 <template>
 
-<div v-if="task" class="task-control">
-    <el-card>
-        <div class="text-w7 text-lg mb-3">{{ task.name }}</div>
+<div v-if="task" class="task-control flex-row">
+    <tool-button
+        v-if="!isRunning && !isPaused"
+        class="mr-1"
+        tooltip="Iniciar ejecución" 
+        icon="el-icon-video-play"
+        @click="onStart"
+    ></tool-button>
 
-        <div class="mb-2">
-            <div class="text-w3 text-sm mb-1">
-                Creada el <span class="text-w4 pl-1">
-                    {{ task.createdAt | dateTimeFilter }}
-                </span>
-            </div>
-            <div class="status" :style="{background: taskData.color}">
-                {{ taskData.status }}
-            </div>
-        </div>
+    <tool-button
+        v-else-if="isRunning"
+        class="mr-1"
+        tooltip="Pausar ejecución" 
+        icon="el-icon-video-pause"
+        @click="onPause"
+    ></tool-button>
 
-        <div class="flex-row jb ac">
-            <el-progress 
-                :percentage="progress.value" 
-                :class="progress.class"
-                :show-text="false"
-            ></el-progress>
+    <tool-button
+        v-else-if="isPaused"
+        class="mr-1"
+        tooltip="Reanudar ejecución" 
+        icon="el-icon-video-play"
+        @click="onResume"
+    ></tool-button>
 
-            <div class="controls ml-2">
-                <el-tooltip
-                    v-if="isRunning"
-                    effect="dark" 
-                    content="Pausar ejecución" 
-                    placement="left"
-                    transition="el-opacity-transition"
-                >
-                    <el-button                    
-                        icon="el-icon-video-pause"
-                        :disabled="disableControls"
-                        @click.stop="onPauseClick"
-                    ></el-button>
-                </el-tooltip>
-
-                <el-tooltip
-                    v-else
-                    effect="dark" 
-                    content="Reanudar ejecución" 
-                    placement="left"
-                >
-                    <el-button                    
-                        icon="el-icon-video-play"
-                        :disabled="disableControls"
-                        @click.stop="onResumeClick"
-                    ></el-button>
-                </el-tooltip>
-
-                <el-tooltip
-                    effect="dark" 
-                    content="Detener ejecución" 
-                    placement="left"
-                    transition="el-opacity-transition"
-                >
-                    <el-button 
-                        icon="el-icon-switch-button"
-                        :disabled="disableControls"
-                        @click.stop="onStopClick"
-                    ></el-button>  
-                </el-tooltip>
-            </div>
-        </div>
-    </el-card>               
+    <tool-button
+        tooltip="Detener ejecución" 
+        icon="el-icon-switch-button"
+        :disabled="!isRunning && !isPaused"
+        @click="onStop"
+    ></tool-button>           
 </div>
 
 </template>
@@ -72,10 +38,14 @@
 <script>
 
 import { taskModel } from '@/store/modules/tasks/models';
-import { typeOptions, statusOptions } from './data';
+import ToolButton from '@/components/ToolButton';
 
 export default {
-    name: 'TaskCard',
+    name: 'TaskControl',
+
+    components: {
+        ToolButton
+    },
 
     props: {
         taskId: {
@@ -96,88 +66,31 @@ export default {
             return this.$store.state.tasks.items[this.taskId];
         },
 
-        linkRoute() {
-            return {
-                name: typeOptions[this.task.taskType].route, 
-                params: { taskId: this.taskId }
-            };
-        },
-
-        taskData() {
-            const typeOption = typeOptions[this.task.taskType];
-            const statusOption = statusOptions[this.task.status];
-            return {
-                type: typeOption.label,
-                icon: typeOption.icon,
-                status: statusOption.label,
-                color: statusOption.color
-            };
-        },
-
         isRunning() {
             return this.task.status === taskModel.STATUS_RUNNING;
         },
 
-        isActive() {
-            return (
-                this.task.status === taskModel.STATUS_RUNNING ||
-                this.task.status === taskModel.STATUS_PAUSED
-            );
-        },
-
-        disableControls() {
-            return !this.isActive;
-        },
-
-        progress() {
-            return {
-                value: this.task.progress < 0 ? 0 : this.task.progress,
-                class: {
-                    'indeterminate': this.task.progress < 0 && this.isActive
-                }
-            };
+        isPaused() {
+            return this.task.status === taskModel.STATUS_PAUSED;
         }
     },
 
     methods: {
-        onPauseClick() {
-            
+        onStart() {
+            this.$store.dispatch('tasks/start', this.taskId);
         },
-        onResumeClick() {
-            
+        onPause() {
+            this.$store.dispatch('tasks/pause', this.taskId);
         },
-        onStopClick() {
-            
+        onResume() {
+            this.$store.dispatch('tasks/resume', this.taskId);
+        },
+        onStop() {
+            this.$store.dispatch('tasks/stop', this.taskId);
         }
     }
 };
 </script>
 
 <style lang="scss">
-
-.task-control {
-
-    .status {
-        font-size: 12px;
-        color: #ffffff;
-        border-radius: 3px;
-        padding: 0 8px;
-        display: inline-block;
-    }
-
-    .controls {
-        .el-button {
-            margin-left: 0;
-            padding: 0;
-            border: none;
-        }
-        i {
-            font-size: 20px;
-        }
-    }
-
-    .el-progress {
-        flex-grow: 1;
-    }
-}
 </style>

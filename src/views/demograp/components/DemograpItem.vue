@@ -15,7 +15,7 @@ const sexOptions = {
 };
 
 export default {
-    name: 'DemograpItem',
+    name: 'DemograpCard',
 
     props: {
         subject: {

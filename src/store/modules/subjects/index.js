@@ -6,13 +6,7 @@ import { Api } from '../api';
 
 const PAGE_SIZE = 24;
 
-class SubjectsApi extends Api {
-    demograp() {
-        return this.axios.get(this.path + 'demograp/');
-    }
-}
-
-const subjectsApi = new SubjectsApi('subjects/');
+const subjectsApi = new Api('subjects/');
 
 const state = {
     MODEL: subjectModel,
@@ -34,4 +28,8 @@ export default {
     actions,
     mutations,
     getters
+};
+
+export {
+    subjectsApi
 };

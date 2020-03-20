@@ -1,5 +1,6 @@
 <template>
-    <div class="dashboard-index">
+    <split-view class="dashboard-index" :side-panel="false">
+    <template v-slot:main>
         <el-row :gutter="8" class="mb-4">
             <el-col :xs="12" :sm="6">
                 <stat-card
@@ -351,10 +352,13 @@
                 </el-card>                
             </el-col>
         </el-row>
-    </div>
+    </template>
+    </split-view>
 </template>
 
 <script>
+
+import SplitView from '@/layout/components/SplitView';
 import StatCard from './components/StatCard';
 import BarChart from '@/components/charts/BarChart';
 import PieChart from '@/components/charts/PieChart';
@@ -384,6 +388,7 @@ export default {
     name: 'DashboardIndex',
     
     components: {
+        SplitView,
         StatCard,
         BarChart,
         PieChart,

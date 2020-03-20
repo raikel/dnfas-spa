@@ -1,12 +1,19 @@
 <template>
 
 <div class="subjects-filter">
-    <h3 class="pb-2 mb-4">Filtrar resultados</h3>
     <el-form
         label-position="top"
-        :disabled="inProgress"
+        :disabled="loading"
         size="small"
     >
+        <el-form-item label="Ordenar por">
+            <order-select
+                :order-choices="orderChoices"
+                :value="filter.orderBy"                    
+                @change="val => onParamChange({orderBy: val})"
+            ></order-select>           
+        </el-form-item>
+
         <el-form-item label="Nombre">
             <el-input
                 clearable
@@ -86,8 +93,8 @@
                 @change="val => onParamChange({sex: val})"
             >
                 <el-option
-                    v-for="(sex, index) in sexOptions"
-                    :key="index"
+                    v-for="sex in sexChoices"
+                    :key="sex.value"
                     :label="sex.label"
                     :value="sex.value"
                 ></el-option>
@@ -104,24 +111,13 @@
                 @change="val => onParamChange({skin: val})"
             >
                 <el-option
-                    v-for="(skin, index) in skinOptions"
-                    :key="index"
+                    v-for="skin in skinChoices"
+                    :key="skin.value"
                     :label="skin.label"
                     :value="skin.value"
                 ></el-option>
             </el-select>
         </el-form-item>
-
-        <el-button
-            v-if="clearButton"
-            type="info"
-            icon="el-icon-refresh"
-            class="block mt-3"
-            :disabled="inProgress"
-            @click="onClearClick"             
-        >
-            Limpiar
-        </el-button>
     </el-form>
 </div>
 
@@ -129,38 +125,20 @@
 
 <script>
 
-import { subjectModel } from '@/store/modules/subjects/models';
+import OrderSelect from '@/components/OrderSelect';
 import { tasksApi } from '@/store/modules/tasks';
-
-const SEX_OPTIONS = [{
-    label: 'Hombre',
-    value: subjectModel.SEX_MAN
-}, {
-    label: 'Mujer',
-    value: subjectModel.SEX_WOMAN
-}];
-
-const SKIN_OPTIONS = [{
-    label: 'Blanca',
-    value: subjectModel.SKIN_WHITE
-}, {
-    label: 'Negra',
-    value: subjectModel.SKIN_BLACK
-}, {
-    label: 'Morena',
-    value: subjectModel.SKIN_BROWN
-}];
+import { sexChoices, skinChoices, orderChoices } from './data';
 
 const queryMinLength = 3;
 
 export default {
     name: 'SubjectFilter',
 
+    components: {
+        OrderSelect
+    },
+
     props: {
-        clearButton: {
-            type: Boolean,
-            default: true
-        },
         params: {
             type: Object,
             default: () => {}
@@ -169,9 +147,10 @@ export default {
 
     data() {
         return {
-            inProgress: false,
-            sexOptions: SEX_OPTIONS,
-            skinOptions: SKIN_OPTIONS,
+            loading: false,
+            sexChoices: sexChoices,
+            skinChoices: skinChoices,
+            orderChoices: orderChoices,
             querying: false,
             tasksChoices: []
         };
@@ -201,11 +180,6 @@ export default {
 
         onParamChange(data) {
             this.$store.dispatch('subjects/setFilter', data);
-            this.update();
-        },
-
-        onClearClick() {
-            this.$store.dispatch('subjects/resetFilter');
             this.update();
         },
         
@@ -239,16 +213,4 @@ export default {
 </script>
 
 <style lang="scss">
-
-.subjects-filter {
-    h3 {
-        border-bottom: 1.3px solid #43a047;
-    }
-    .range .el-form-item__content {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-    }
-}
-
 </style>

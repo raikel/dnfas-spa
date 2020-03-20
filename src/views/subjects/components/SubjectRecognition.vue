@@ -1,190 +1,56 @@
 <template>
-    <div class="subject-recognition">
-        <div class="input">
-            <div
-                v-if="frame"
-                v-loading="inProgress"
-                element-loading-text="Analizando la imagen..."
-                class="frame-wraper"
-            >
-                <div style="height: 100%; position: relative; display: inline-block">
-                    <img v-if="frame" :src="frame.image" alt="">
-                    <focus-area 
-                        v-for="face in faces" 
-                        :key="face.id" 
-                        :box="face.box"
-                        :highlight="face.id === selFaceId"
-                        @click="onFocusAreaClick(face.id)"
-                    ></focus-area>
-                </div>
-                
-                <div class="laser"></div>
-            </div>
 
-            <empty
-                v-else
-                v-loading="inProgress"
-                element-loading-text="Analizando la imagen..."
-                title="Imagen de análisis"
-                message="Carga una imagen para iniciar el análisis y obtener los resultados"
-                icon-size="3em"
-                height="512px"
-                icon="el-icon-camera-solid"
-                background="#eee"
-            ></empty> 
-
-            <el-upload                
-                class="upload"
-                drag
-                :name="imageUploadName"
-                :action="imageUploadUrl"
-                :headers="imageUploadHeader"
-                :before-upload="onBeforeUploadImage"
-                :on-success="onSuccessImageUpload"
-                :on-error="onImageUploadOnError"
-                :disabled="inProgress"
-                :show-file-list="false"
-                accept="image/png, image/jpeg"
-            >
-                <i class="el-icon-upload"></i>
-                <div class="el-upload__text">
-                    Arrasta una imagen aquí o <em>haz click para seleccionar</em>
-                </div>
-            </el-upload> 
+<split-view class="subject-recognition" :action-bar="false">
+    <template v-slot:main>
+        <div
+            v-if="frame"
+            v-loading="inProgress"
+            element-loading-text="Analizando la imagen..."
+            class="frame-wraper"
+        >
+            <div style="height: 100%; position: relative; display: inline-block">
+                <img v-if="frame" :src="frame.image" alt="">
+                <focus-area 
+                    v-for="face in faces" 
+                    :key="face.id" 
+                    :box="face.box"
+                    :highlight="face.id === selFaceId"
+                    @click="onFocusAreaClick(face.id)"
+                ></focus-area>
+            </div>            
+            <div class="laser"></div>
         </div>
 
-        <el-card class="output">
-            <div>
-                <face-match                
-                    :left-image="matchData.faceImage"
-                    :right-image="matchData.subjectImage"
-                    :route="matchData.subjectRoute"
-                    right-text="Ninguna coincidencia"
-                    height="150px"
-                    width="120px"
-                    @next="onFaceMatchNext"
-                    @prev="onFaceMatchPrev"
-                    @view="onFaceMatchView()"
-                >
-                </face-match>
+        <empty
+            v-else
+            v-loading="inProgress"
+            element-loading-text="Analizando la imagen..."
+            title="Imagen de análisis"
+            message="Carga una imagen para iniciar el análisis y obtener los resultados"
+            icon-size="3em"
+            height="490px"
+            icon="el-icon-camera-solid"
+            background="#eee"
+        ></empty> 
 
-                <div class="subject-name">
-                    {{ matchData.subjectName }}
-                </div>
-
-                <div class="stats mt-3">
-                    <div class="stat">
-                        <hexagon 
-                            :color="matchData.colors.matchesCount" 
-                            size="68px"
-                        >                            
-                            <div class="stat-value">
-                                {{ matchData.matchesCount }}
-                            </div>
-                        </hexagon>
-                        <div class="stat-label">
-                            coincidencias
-                        </div>
-                    </div>
-
-                    <div class="stat">
-                        <hexagon 
-                            :color="matchData.colors.matchScore" 
-                            size="68px"
-                        >                            
-                            <div class="stat-value">
-                                {{ matchData.matchScore | percentFilter }}
-                            </div>
-                        </hexagon>
-                        <div class="stat-label">
-                            similitud
-                        </div>
-                    </div>
-
-                    <div class="stat">
-                        <hexagon 
-                            :color="matchData.colors.imagesCount" 
-                            size="68px"
-                        >                            
-                            <div class="stat-value">
-                                {{ matchData.imagesCount }}
-                            </div>
-                        </hexagon>
-                        <div class="stat-label">
-                            imágenes
-                        </div>
-                    </div>              
-                </div>
+        <el-upload                
+            class="upload"
+            drag
+            :name="imageUploadName"
+            :action="imageUploadUrl"
+            :headers="imageUploadHeader"
+            :before-upload="onBeforeUploadImage"
+            :on-success="onSuccessImageUpload"
+            :on-error="onImageUploadOnError"
+            :disabled="inProgress"
+            :show-file-list="false"
+            accept="image/png, image/jpeg"
+        >
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">
+                Arrasta una imagen aquí o <em>haz click para seleccionar</em>
             </div>
-
-            <!-- <div v-else class="faces-empty"></div> -->
-            <div class="search-size mt-3">
-                El sistema ejecutará el reconocimiento facial analizando
-                <b>{{ searchSize }}</b> personas registradas.
-            </div>
-
-            <div class="controls mt-3">
-
-                <el-form
-                    ref="params"
-                    :model="params"
-                    label-position="top"
-                    :disabled="inProgress"
-                    class="mt-3"
-                >
-
-                    <el-form-item 
-                        label="Umbral de similitud" 
-                        prop="threshold"
-                    >
-                        <el-slider
-                            v-model="params.threshold" 
-                            :min="0"                    
-                            :max="100"
-                        ></el-slider>
-                    </el-form-item>
-
-                    <el-form-item 
-                        label="Número máximo de coincidencias" 
-                        prop="maxMatches"
-                    >
-                        <el-input-number 
-                            v-model="params.maxMatches"
-                            :min="1" 
-                            :max="15"          
-                        ></el-input-number>
-                    </el-form-item>
-                    
-                    <el-form-item 
-                        label="Segmento de reconocimiento" 
-                        prop="segments"
-                    >
-                        <div class="segment-filter">
-                            <el-select
-                                v-model="params.segments"
-                                multiple
-                                placeholder="Seleccionar uno o varios segmentos"
-                            >
-                                <el-option
-                                    v-for="(segment, index) in segmentsChoices"
-                                    :key="index"
-                                    :label="segment.title"
-                                    :value="segment.id"
-                                ></el-option>
-                            </el-select>
-                        </div>
-                    </el-form-item>
-
-                    <el-button 
-                        class="analyze" 
-                        type="primary" 
-                        :disabled="inProgress || !frame"
-                        @click="onAnalyzeClick"
-                    >Analizar</el-button>
-                </el-form>
-            </div>
-            
-        </el-card>
+        </el-upload>
 
         <el-dialog
             v-if="matchData.subjectId"
@@ -195,7 +61,118 @@
             <subject-details :subject-id="matchData.subjectId">
             </subject-details>
         </el-dialog>
-    </div>
+    </template>
+
+    <template v-slot:side-actions>
+    </template>
+
+    <template v-slot:side-content>
+        <div class="output">
+            <face-match                
+                :left-image="matchData.faceImage"
+                :right-image="matchData.subjectImage"
+                :route="matchData.subjectRoute"
+                right-text="Ninguna coincidencia"
+                height="150px"
+                width="120px"
+                @next="onFaceMatchNext"
+                @prev="onFaceMatchPrev"
+                @view="onFaceMatchView()"
+            >
+            </face-match>
+
+            <div class="subject-name">
+                {{ matchData.subjectName }}
+            </div>
+
+            <div class="stats mt-3">
+                <div class="stat">
+                    <hexagon :color="matchData.colors.matchesCount" size="68px">                            
+                        <div class="stat-value">
+                            {{ matchData.matchesCount }}
+                        </div>
+                    </hexagon>
+                    <div class="stat-label"> coincidencias </div>
+                </div>
+
+                <div class="stat">
+                    <hexagon :color="matchData.colors.matchScore" size="68px">                            
+                        <div class="stat-value">
+                            {{ matchData.matchScore | percentFilter }}
+                        </div>
+                    </hexagon>
+                    <div class="stat-label"> similitud </div>
+                </div>
+
+                <div class="stat">
+                    <hexagon :color="matchData.colors.imagesCount" size="68px">                            
+                        <div class="stat-value">
+                            {{ matchData.imagesCount }}
+                        </div>
+                    </hexagon>
+                    <div class="stat-label"> imágenes </div>
+                </div>              
+            </div>
+        </div>
+
+        <div class="search-size mt-3">
+            El sistema ejecutará el reconocimiento facial analizando
+            <b>{{ searchSize }}</b> personas registradas.
+        </div>
+
+        <div class="controls mt-3">
+            <el-form
+                ref="params"
+                size="small"
+                :model="params"
+                label-position="top"
+                :disabled="inProgress"
+                class="mt-3"
+            >
+                <el-form-item label="Umbral de similitud" prop="threshold">
+                    <el-slider
+                        v-model="params.threshold" 
+                        :min="0"                    
+                        :max="100"
+                    ></el-slider>
+                </el-form-item>
+
+                <el-form-item label="Máximo de coincidencias" prop="maxMatches">
+                    <el-input-number 
+                        v-model="params.maxMatches"
+                        :min="1" 
+                        :max="15"          
+                    ></el-input-number>
+                </el-form-item>
+                
+                <el-form-item label="Segmento" prop="segments">
+                    <el-select
+                        v-model="params.segments"
+                        multiple
+                        placeholder="Seleccionar uno o varios segmentos"
+                    >
+                        <el-option
+                            v-for="(segment, index) in segmentsChoices"
+                            :key="index"
+                            :label="segment.title"
+                            :value="segment.id"
+                        ></el-option>
+                    </el-select>
+                </el-form-item>
+
+                <el-button 
+                    class="block" 
+                    type="primary" 
+                    :disabled="inProgress || !frame"
+                    @click="onAnalyzeClick"
+                >
+                    Analizar
+                </el-button>
+            </el-form>
+        </div>
+    </template>
+</split-view>
+
 </template>
 
 <script>
@@ -206,6 +183,7 @@ import Hexagon from '@/components/Hexagon';
 import Empty from '@/components/Empty';
 import FaceMatch from './FaceMatch';
 import SubjectDetails from './SubjectDetails';
+import SplitView from '@/layout/components/SplitView';
 
 const NO_FACE_MSG = 'No se ha detectado ningún rostro en la imagen ' + 
                     'proporcionada. Prueba reajustar los parámetros de ' + 
@@ -221,7 +199,8 @@ export default {
         FaceMatch,
         SubjectDetails,
         Hexagon,
-        Empty
+        Empty,
+        SplitView
     },
 
     data() {
@@ -467,27 +446,13 @@ export default {
 </script>
 
 <style lang="scss">
+
 .subject-recognition {
 
-    display: flex;
-    width: 100%;
-
-    .input {
-        flex-grow: 1;
-        display: flex;
-        flex-flow: column nowrap;
-        justify-content: space-between;
-        height: 684px;
-        margin-right: 16px;
-        .empty {
-            flex-grow: 1;
-        }
-    }
-
     .frame-wraper {
-        position: relative;
+        height: 490px;
         width: 100%;
-        flex-grow: 1;
+        position: relative;        
         background: #000000;
         text-align: center;
         overflow: hidden;
@@ -498,9 +463,6 @@ export default {
     }
 
     .output {
-        /* height: 600px; */
-        width: 340px;
-        flex-shrink: 0;
         .faces-empty {
             background: #000000;
             height: 250px;
@@ -536,54 +498,6 @@ export default {
             text-align: center;
         }
 
-    }
-
-    .controls {
-        button.analyze {
-            width: 100%;
-        }
-    }
-
-    .upload {
-        display: flex;
-        flex-flow: column nowrap;
-    }
-
-    .el-upload {
-        border: none;
-        width: 100%;
-        height: auto;
-        margin-top: 16px;
-    }
-    .el-upload-dragger {
-        width: 100%;        
-        height: 84px;
-        display: flex;
-        flex-flow: column nowrap;
-        align-items: center;
-        line-height: initial;
-    }
-    .el-upload-list--picture-card {
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: center;
-    }
-    .el-upload-dragger .el-icon-upload {
-        margin: 12px 0 8px 0;
-        font-size: 32px;
-        line-height: initial;
-    }
-
-    .segment-filter {
-        display: flex;
-        flex-flow: row nowrap;
-        align-items: flex-end;
-
-        .el-button.active {
-            color: #FFFFFF;
-            background-color: #409eff;
-            border-color: #409eff;
-        }
     }
 
     .search-size {

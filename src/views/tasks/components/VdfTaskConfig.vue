@@ -3,6 +3,7 @@
 <el-form
     v-if="config"
     ref="form"
+    size="small"
     class="vdftask-config"
     label-position="top"
     :show-message="false"
@@ -20,8 +21,8 @@
             @input="val => onParamChange({videoSourceType: val})"
         >
             <el-radio-button 
-                v-for="(source, index) in sourceChoices"
-                :key="index"
+                v-for="source in sourceChoices"
+                :key="source.value"
                 :label="source.value"
             >
                 {{ source.label }}
@@ -35,7 +36,6 @@
     >
         <el-select
             v-model="videoSource"
-            value-key="id"
             filterable
             remote
             clearable
@@ -48,9 +48,9 @@
                 v-for="source in videoSources"
                 :key="source.id"
                 :label="source.name"
-                :value="source"
+                :value="source.id"
             >
-                <span v-html="source.name"></span>
+                <span v-html="source.label"></span>
             </el-option>
         </el-select>
     </el-form-item>
@@ -175,7 +175,6 @@ import {
 import { videosApi } from '@/store/modules/videos';
 import { camerasApi } from '@/store/modules/cameras';
 import { vTaskConfigModel } from '@/store/modules/tasks/models';
-import filters from '@/filters';
 
 const QUERY_MIN_LENGTH = 3;
 
@@ -210,7 +209,6 @@ export default {
             querying: false,
             alert: null,
             rules: rules,
-            videoSourceName: '',
             videoSources: []
         };
     },
@@ -223,26 +221,48 @@ export default {
 
         videoSource: {
             get() {
-                if (this.config && this.config.videoSourceId) {
+                return this.config.videoSourceId;
+                /* if (this.config.videoSourceId) {
                     const sourceType = this.config.videoSourceType;
                     const id = this.config.videoSourceId;
                     switch (sourceType) {
-                        case vTaskConfigModel.VIDEO_SOURCE_RECORD:
+                        case vTaskConfigModel.VIDEO_SOURCE_RECORD: {
                             this.$store.dispatch('videos/getItem', id);
-                            return this.$store.state.videos.items[id];
-                        case vTaskConfigModel.VIDEO_SOURCE_CAMERA:
+                            const video = this.$store.state.videos.items[id];
+                            if (video) {
+                                return {
+                                    name: video.name,
+                                    label: video.name,
+                                    id: video.id
+                                };
+                            }
+                            break;
+                        }
+                        case vTaskConfigModel.VIDEO_SOURCE_CAMERA: {
                             this.$store.dispatch('cameras/getItem', id);
-                            return this.$store.state.cameras.items[id];            
+                            const camera = this.$store.state.cameras.items[id];
+                            if (camera) {
+                                return {
+                                    name: camera.name,
+                                    label: camera.name,
+                                    id: camera.id
+                                };
+                            }
+                            break;
+                        }
                         default:
                             this.$log.error(`Invalid video source ${sourceType}`);
                             return null;
                     }
                 }
-                return null;
+                return null; */
             },
 
             set(value) {
-                this.onParamChange({videoSourceId: value ? value.id : null});              
+                this.onParamChange({ videoSourceId: value });
+                /* this.onParamChange({
+                    videoSourceId: value ? value.id : null
+                });  */             
             }      
         }
     },
@@ -250,11 +270,16 @@ export default {
     methods: {
 
         onParamChange(data) {
+            if (data.videoSourceType && 
+                data.videoSourceType !== this.config.videoSourceType
+            ) {
+                this.onParamChange({videoSourceId: null});
+            }
             const config = { ... this.config, ...data};
             this.$store.dispatch('tasks/updateItem', {
                 item: { id: this.taskId, config: config }, 
                 persist: false
-            });
+            });            
         },
 
         onValidate(prop, valid, errorMsg) {
@@ -292,10 +317,13 @@ export default {
                     fields: 'id,name'
                 }).then(({ data }) => {
                     const results = data.results ? data.results : [];
+                    const re = new RegExp(query, 'gi');
+                    const queryBold = '<b>' + query + '</b>';
                     this.videoSources = results.map(source => {
                         return {
                             id: source.id,
-                            name: filters.boldQueryText(source.name, query)
+                            name: source.name,
+                            label: source.name.replace(re, queryBold)
                         };
                     });
                 }).catch(error => {

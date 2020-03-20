@@ -94,7 +94,9 @@ class Model {
                         }
                     }
                 } else {
-                    Vue.$log.warn(`Missed API key ${prop.api} in API data.`);
+                    if (!prop.optional) {
+                        Vue.$log.warn(`Missed API key ${prop.api} in API data.`);
+                    }                    
                 }
             } else {
                 data[key] = this.propValue(key);
@@ -144,6 +146,22 @@ class Model {
     }
 }
 
+const timeReader = function(time) {
+    if (!time) {
+        return time;
+    }
+    const d = new Date('1970-01-01T' + time);
+    return isNaN(d) ? time : d;
+};
+
+const timeWriter = function(date) {
+    if (!date) {
+        return date;
+    }
+    const d = new Date(date);
+    return isNaN(d) ? date : d.toISOString().substring(11, 19);
+};
+
 const dateReader = function(date) {
     if (!date) {
         return date;
@@ -171,5 +189,7 @@ export {
     Model, 
     dateReader,
     dateWriter,
+    timeReader,
+    timeWriter,
     numberReader 
 };

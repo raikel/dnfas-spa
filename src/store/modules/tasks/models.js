@@ -1,4 +1,10 @@
-import { Model } from '../abstract/models';
+import { 
+    Model, 
+    dateReader, 
+    dateWriter, 
+    timeReader, 
+    timeWriter 
+} from '../abstract/models';
 
 class VTaskConfigModel extends Model {
     VIDEO_SOURCE_RECORD = 'record'
@@ -132,12 +138,14 @@ class PgaTaskInfoModel extends Model {
         facesCount: {
             writable: false,
             api: 'faces_count',
-            type: Number
+            type: Number,
+            optional: true
         },
         processingTime: {
             writable: false,
             api: 'processing_time',
-            type: Number
+            type: Number,
+            optional: true
         }
     }
 }
@@ -149,22 +157,136 @@ class VTaskInfoModel extends Model {
         framesCount: {
             writable: false,
             api: 'frames_count',
-            type: Number
+            type: Number,
+            optional: true
         },
         processingTime: {
             writable: false,
             api: 'processing_time',
-            type: Number
+            type: Number,
+            optional: true
         },
         frameRate: {
             writable: false,
             api: 'frame_rate',
-            type: Number
+            type: Number,
+            optional: true
         }
     }
 }
 
 const vTaskInfoModel = new VTaskInfoModel();
+
+// =============================================================================
+// Face clustering
+// =============================================================================
+
+class FclTaskConfigModel extends Model {
+    props = {
+        similarityThr: {
+            writable: true,
+            api: 'similarity_thr',
+            type: Number,
+            default: 0.6
+        },
+        memorySeconds: {
+            writable: true,
+            api: 'memory_seconds',
+            type: Number,
+            default: 3600
+        },
+        filterBackWeeks: {
+            writable: true,
+            api: 'filter_back_weeks',
+            type: Number,
+            default: undefined,
+            optional: true
+        },
+        filterBackDays: {
+            writable: true,
+            api: 'filter_back_days',
+            type: Number,
+            default: undefined,
+            optional: true
+        },
+        filterBackHours: {
+            writable: true,
+            api: 'filter_back_hours',
+            type: Number,
+            default: undefined,
+            optional: true
+        },
+        filterMinDate: {
+            writable: true,
+            api: 'filter_min_date',
+            type: Date,
+            default: null,
+            reader: dateReader,
+            writer: dateWriter,
+            optional: true
+        },
+        filterMaxDate: {
+            writable: true,
+            api: 'filter_max_date',
+            type: Date,
+            default: null,
+            reader: dateReader,
+            writer: dateWriter,
+            optional: true
+        },
+        filterMinTime: {
+            writable: true,
+            api: 'filter_min_time',
+            type: Date,
+            default: null,
+            reader: timeReader,
+            writer: timeWriter,
+            optional: true
+        },
+        filterMaxTime: {
+            writable: true,
+            api: 'filter_max_time',
+            type: Date,
+            default: null,
+            reader: timeReader,
+            writer: timeWriter,
+            optional: true
+        },
+        filterTasks: {
+            writable: true,
+            api: 'filter_tasks',
+            type: Number,
+            many: true
+        },
+        filterTasksTags: {
+            writable: true,
+            api: 'filter_tasks_tags',
+            type: Number,
+            many: true
+        }
+    }
+}
+
+const fclTaskConfigModel = new FclTaskConfigModel();
+
+class FclTaskInfoModel extends Model {
+    props = {
+        facesCount: {
+            writable: false,
+            api: 'faces_count',
+            type: Number,
+            optional: true
+        },
+        processingTime: {
+            writable: false,
+            api: 'processing_time',
+            type: Number,
+            optional: true
+        }
+    }
+}
+
+const fclTaskInfoModel = new FclTaskInfoModel();
 
 class TaskModel extends Model {
     TYPE_VIDEO_DETECT_FACES = 'video_detect_faces'
@@ -172,13 +294,15 @@ class TaskModel extends Model {
     TYPE_VIDEO_DETECT_PERSON = 'video_detect_person'
     TYPE_VIDEO_HUNT_PERSON = 'video_hunt_person'
     TYPE_PREDICT_GENDERAGE = 'predict_genderage'
+    TYPE_FACE_CLUSTERING = 'face_clustering'
 
     TYPE_CHOICES = [
         this.TYPE_VIDEO_DETECT_FACES,
         this.TYPE_VIDEO_HUNT_FACES,
         this.TYPE_VIDEO_DETECT_PERSON,
         this.TYPE_VIDEO_HUNT_PERSON,
-        this.TYPE_PREDICT_GENDERAGE
+        this.TYPE_PREDICT_GENDERAGE,
+        this.TYPE_FACE_CLUSTERING
     ]
 
     STATUS_CREATED = 'created'
@@ -213,6 +337,12 @@ class TaskModel extends Model {
             writable: true,
             api: 'name',
             type: String
+        },
+        tags: {
+            writable: true,
+            api: 'tags',
+            type: Number,
+            many: true
         },
         taskType: {
             writable: true,
@@ -296,7 +426,11 @@ class TaskModel extends Model {
             case this.TYPE_PREDICT_GENDERAGE:
                 data.config = pgaTaskConfigModel.apiGet(apiData['config']);
                 data.info = pgaTaskInfoModel.apiGet(apiData['info']);
-                break;      
+                break;
+            case this.TYPE_FACE_CLUSTERING:
+                data.config = fclTaskConfigModel.apiGet(apiData['config']);
+                data.info = fclTaskInfoModel.apiGet(apiData['info']);
+                break;  
             default:
                 break;
         }
@@ -318,6 +452,10 @@ class TaskModel extends Model {
                 apiData['config'] = pgaTaskConfigModel.apiPost(data.config, empty);
                 apiData['info'] = pgaTaskInfoModel.apiPost(data.info, empty);
                 break;
+            case this.TYPE_FACE_CLUSTERING:
+                apiData['config'] = fclTaskConfigModel.apiPost(data.config, empty);
+                apiData['info'] = fclTaskInfoModel.apiPost(data.info, empty);
+                break;
             default:
                 break;
         }
@@ -329,6 +467,12 @@ const taskModel = new TaskModel();
 
 class TaskFilter extends Model {
     props = {
+        orderBy: {
+            writable: true,
+            api: 'order_by',
+            type: String,
+            default: '-created_at'
+        },
         name: {
             writable: true,
             api: 'name',
@@ -365,5 +509,7 @@ export {
     vdfTaskConfigModel,
     vhfTaskConfigModel,
     pgaTaskConfigModel,
+    fclTaskConfigModel,
+    fclTaskInfoModel,
     taskFilter
 };

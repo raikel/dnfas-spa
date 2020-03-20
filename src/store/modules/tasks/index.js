@@ -6,7 +6,25 @@ import { Api } from '../api';
 
 const PAGE_SIZE = 24;
 
-const tasksApi = new Api('tasks/');
+class TaskApi extends Api {
+    control(action, id) {
+        return this.axios.patch(`${this.path}${id}/${action}/`, {});
+    }
+    start(id) {
+        return this.control('start', id);
+    }
+    pause(id) {
+        return this.control('pause', id);
+    }
+    resume(id) {
+        return this.control('resume', id);
+    }
+    stop(id) {
+        return this.control('stop', id);
+    }
+}
+
+const tasksApi = new TaskApi('tasks/');
 
 const state = {
     MODEL: taskModel,

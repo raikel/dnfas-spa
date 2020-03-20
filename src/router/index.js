@@ -63,12 +63,6 @@ export const constantRoutes = [
                 title: 'Tareas',
                 icon: 'tasks'
             }
-        }, {
-            path: 'vdf/:taskId',
-            name: 'VdfTaskDetails',
-            component: () => import('@/views/tasks/components/VdfTaskDetails'),
-            props: true,            
-            hidden: true
         }]
     }, {
         path: '/subjects',
@@ -88,8 +82,8 @@ export const constantRoutes = [
             }
         }, {
             path: '/demograp',
-            name: 'SubjectsDemograp',
-            component: () => import('@/views/subjects/demograp'),            
+            name: 'Demograp',
+            component: () => import('@/views/demograp/index'),            
             meta: {
                 title: 'Demografía'
             }

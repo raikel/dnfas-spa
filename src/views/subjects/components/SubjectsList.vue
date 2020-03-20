@@ -1,31 +1,24 @@
 <template>
 
-<div class="subject-list">
-
-    <list-header 
-        class="mb-4"
-        :show-count="subjects.length"
-        :total-count="subjectCount"
-        :order-options="orderOptions"
-        @order-change="setOrder"
-    ></list-header>  
-
+<div class="subjects-list">
     <el-row
         v-if="subjects.length" 
         :gutter="8"
     >
         <el-col
-            v-for="(subject, index) in subjects"
-            :key="index"
+            v-for="subject in subjects"
+            :key="subject.id"
             :xs="24" 
-            :sm="24" 
-            :md="4" 
+            :sm="12" 
+            :md="8" 
             :lg="6" 
-            :xl="3"            
+            :xl="3"                 
         >
             <subject-card
                 class="mb-2"
                 :subject-id="subject.id"
+                :focus="subject.id === focusId"
+                @click="onSubjectClick(subject.id)"                
             ></subject-card>
         </el-col>
     </el-row>
@@ -33,23 +26,23 @@
     <empty
         v-else
         title="Sin elementos"
-        message="No existe ningún sujeto que coincida con los criterios de búsqueda"
+        message="No existen resultados para mostrar"
         icon-size="3em"
-        height="825px"
+        height="383px"
         icon="el-icon-user"
         background="#eee"
     ></empty> 
 
     <el-pagination 
-        :total="subjectCount" 
+        :total="subjectsCount" 
         :page-size="pageSize" 
         :background="true"
         hide-on-single-page
         layout="prev, pager, next"
         class="mt-4"
         @current-change="updatePage"
-    ></el-pagination>
-</div> 
+    ></el-pagination>       
+</div>
 
 </template>
 
@@ -57,29 +50,14 @@
 
 import { mapGetters } from 'vuex';
 import AutoUpdate from '@/mixins/AutoUpdate';
-import ListHeader from '@/components/ListHeader';
 import Empty from '@/components/Empty';
 import SubjectCard from './SubjectCard';
-
-const ORDER_OPTIONS = [    
-    {
-        label: 'Fecha y hora', 
-        value: 'created_at'
-    }, {
-        label: 'Nombre', 
-        value: 'name'
-    }, {
-        label: 'Edad', 
-        value: 'birthdate'
-    }
-];
 
 export default {
     name: 'SubjectsList',
 
     components: {
         SubjectCard,
-        ListHeader,
         Empty
     },
 
@@ -89,12 +67,15 @@ export default {
         autoUpdate: {
             type: Boolean,
             default: false
+        },
+        focusId: {
+            type: [Number, String],
+            default: null
         }
     },
 
     data() {
         return {
-            orderOptions: ORDER_OPTIONS
         };
     },
 
@@ -102,37 +83,32 @@ export default {
         ...mapGetters({
             subjects: 'subjects/sortedItems'
         }),
-        pageSize: function() {
-            return this.$store.state.subjects.pageSize;
-        },
-        subjectCount: function() {
+        subjectsCount() {
             return this.$store.state.subjects.count;
+        },
+        pageSize() {
+            return this.$store.state.subjects.pageSize;
         }
     },
 
-    methods: {
+    methods: {        
         update() {
             this.updateList();
-        },
-
+        },        
         updatePage: function(number) {
             this.$store.dispatch('subjects/setPage', number - 1);
             this.updateList();
-        },        
-
-        setOrder(order) {
-            this.$store.dispatch('subjects/setOrder', order);
-            this.updateList();
         },
-
         updateList: function() {
             this.$store.dispatch('subjects/fetchItems');
+        },
+        onSubjectClick(subjectId) {
+            const focusId = subjectId === this.focusId ? null : subjectId;
+            this.$emit('update:focus-id', focusId);
         }
     }
-    
 };
 </script>
 
 <style lang="scss">
 </style>
-

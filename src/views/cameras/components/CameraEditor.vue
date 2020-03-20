@@ -4,11 +4,12 @@
     <div class="form mr-4">
         <el-form
             ref="form"
+            size="small"
             label-position="top"
             :rules="rules"
             :show-message="false"
             :model="camera"            
-            :disabled="inProgress"
+            :disabled="loading"
             @validate="validate" 
         >
             <el-alert
@@ -63,25 +64,7 @@
                     @input="val => onParamChange({ locationLon: val })"          
                 ></el-input-number>
             </el-form-item>
-        </el-form>
-
-        <div class="buttons mt-4">
-            <el-button
-                :disabled="inProgress" 
-                @click.prevent="onCancel"                           
-            >
-                Cancelar
-            </el-button>
-
-            <el-button
-                type="primary"
-                icon="el-icon-check"
-                :disabled="inProgress"
-                @click.prevent="onConfirm"            
-            >
-                Confirmar
-            </el-button>
-        </div>            
+        </el-form>           
     </div>
     <map-locate
         :location="initLocation"
@@ -94,6 +77,18 @@
             locationLon: val.lng
         })"
     ></map-locate>
+
+    <div class="buttons mt-4 flex-row je ac">
+        <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-check"
+            :disabled="loading"
+            @click.prevent="onConfirm"            
+        >
+            Confirmar
+        </el-button>
+    </div> 
 </div>
 
 </template>
@@ -141,7 +136,7 @@ export default {
     data() {
         return {
             initLocation: initLocation,
-            inProgress: false,
+            loading: false,
             alert: null,
             rules: rules
         };
@@ -149,6 +144,7 @@ export default {
 
     computed: {
         camera() {
+            this.$store.dispatch('cameras/getItem', this.cameraId);
             return this.$store.state.cameras.items[this.cameraId];
         }
     },
@@ -179,17 +175,13 @@ export default {
             this.$store.dispatch(action, {
                 item: this.camera,
                 persist: true
-            }).then(() => {                
-                this.inProgress = false;
-                this.$emit('confirm');
+            }).then(camera => {                
+                this.loading = false;
+                this.$emit('confirm', camera.id);
             }).catch((error) => {                
                 this.$log.error(error);
-                this.inProgress = false;
+                this.loading = false;
             });
-        },
-
-        onCancel() {
-            this.$emit('cancel');
         },
 
         validate(prop, valid, errorMsg) {
@@ -209,23 +201,12 @@ export default {
 <style lang="scss">
 
 .camera-editor {
-    .buttons {
-        display: flex;
-        justify-content: flex-end;
-    }
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: stretch;
-    .form {
-        width: 300px;
-        flex-shrink: 0;
-    }
     .el-input-number input {
         text-align: left;
     }
     .map-locate {
-        flex-grow: 1;
-        height: 500px;
+        width: 100%;
+        height: 400px;
     }
 }
 

@@ -4,27 +4,32 @@ export const typeOptions = {
     [taskModel.TYPE_VIDEO_DETECT_FACES]: {
         label: 'Detección de rostros',
         icon: 'face-detection',
-        route: 'VdfTaskDetails'
+        nsteps: 2
     },
     [taskModel.TYPE_VIDEO_HUNT_FACES]: {
         label: 'Búsqueda de rostros',
         icon: 'face-detection',
-        route: 'VdfTaskDetails'
+        nsteps: 3
     },
     [taskModel.TYPE_VIDEO_DETECT_PERSON]: {
         label: 'Detección de personas',
         icon: 'face-detection',
-        route: 'VdfTaskDetails'
+        nsteps: 2
     },
     [taskModel.TYPE_VIDEO_HUNT_PERSON]: {
         label: 'Búsqueda de personas',
         icon: 'face-detection',
-        route: 'VdfTaskDetails'
+        nsteps: 3
     },
     [taskModel.TYPE_PREDICT_GENDERAGE]: {
         label: 'Predecir género y edad',
         icon: 'face-detection',
-        route: 'VdfTaskDetails'
+        nsteps: 2
+    },
+    [taskModel.TYPE_FACE_CLUSTERING]: {
+        label: 'Agrupamiento de rostros',
+        icon: 'face-detection',
+        nsteps: 2
     }
 };
 
@@ -94,3 +99,17 @@ export const videoSourceChoices = Object.keys(videoSourceOptions).map(key => {
         value: key
     };
 });
+
+export const orderChoices = [{
+    label: 'Fecha de creación', 
+    value: 'created_at'
+}, {
+    label: 'Nombre', 
+    value: 'name'
+}, {
+    label: 'Estado', 
+    value: 'status'
+}, {
+    label: 'Tipo de tarea', 
+    value: 'task_type'
+}];

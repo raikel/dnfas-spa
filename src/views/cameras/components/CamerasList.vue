@@ -1,39 +1,35 @@
 <template>
 
 <div class="cameras-list">
-
-    <list-header 
-        class="mb-4"
-        :show-count="cameras.length"
-        :total-count="camerasCount"
-        :order-options="orderOptions"
-        @order-change="setOrder"
-    ></list-header> 
-
     <el-row
         v-if="cameras.length" 
         :gutter="8"
     >
         <el-col
-            v-for="(camera, index) in cameras"
-            :key="index"
+            v-for="camera in cameras"
+            :key="camera.id"
             :xs="24" 
             :sm="12" 
             :md="8" 
             :lg="8" 
             :xl="4"                
         >
-            <camera-card class="mb-2" :camera-id="camera.id"></camera-card>
+            <camera-card
+                class="mb-2"
+                :camera-id="camera.id"
+                :focus="camera.id === focusId"
+                @click="onCameraClick(camera.id)"                
+            ></camera-card>
         </el-col>
     </el-row>
 
     <empty
         v-else
         title="Sin elementos"
-        message="No existe ninguna cámara que coincida con los criterios de búsqueda"
+        message="No existen resultados para mostrar"
         icon-size="3em"
         height="383px"
-        icon="el-icon-video-camera"
+        icon="el-icon-user"
         background="#eee"
     ></empty> 
 
@@ -55,29 +51,14 @@
 import { mapGetters } from 'vuex';
 import AutoUpdate from '@/mixins/AutoUpdate';
 import Empty from '@/components/Empty';
-import ListHeader from '@/components/ListHeader';
 import CameraCard from './CameraCard';
-
-const orderOptions = [    
-    {
-        label: 'Fecha y hora', 
-        value: 'created_at'
-    }, {
-        label: 'Nombre', 
-        value: 'name'
-    }, {
-        label: 'Ubicación', 
-        value: 'address'
-    }
-];
 
 export default {
     name: 'CamerasList',
 
     components: {
         CameraCard,
-        Empty,
-        ListHeader
+        Empty
     },
 
     mixins: [AutoUpdate],
@@ -86,13 +67,15 @@ export default {
         autoUpdate: {
             type: Boolean,
             default: false
+        },
+        focusId: {
+            type: [Number, String],
+            default: null
         }
     },
 
     data() {
-        return {
-            orderOptions: orderOptions
-        };
+        return {};
     },
 
     computed: {
@@ -107,23 +90,17 @@ export default {
         }
     },
 
-    methods: {        
-        update() {
-            this.updateList();
-        },
-
+    methods: {       
         updatePage: function(number) {
             this.$store.dispatch('cameras/setPage', number - 1);
             this.updateList();
         },
-
-        setOrder(order) {
-            this.$store.dispatch('cameras/setOrder', order);
-            this.updateList();
-        },
-
         updateList: function() {
             this.$store.dispatch('cameras/fetchItems');
+        },
+        onCameraClick(cameraId) {
+            const focusId = cameraId === this.focusId ? null : cameraId;
+            this.$emit('update:focus-id', focusId);
         }
     }
 };

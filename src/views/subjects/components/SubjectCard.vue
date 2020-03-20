@@ -1,40 +1,39 @@
 <template>
 
-<el-card class="subject-card">
-    <router-link 
-        :to="{
-            name: 'SubjectDetails', 
-            params: { subjectId: subject.id }
-        }"
-    >
+<div
+    v-if="subject" 
+    class="subject-card" 
+    :class="{'focus': focus}" 
+    @click="$emit('click')"
+>
+    <el-card>
         <image-overlay 
             :image="image"
             height="200px" 
             width="100%"
             background="rgba(0, 0, 0, 0.2)"
-        >
-        </image-overlay>
-    </router-link>
+        ></image-overlay>
 
-    <div class="info px-2 py-2">
-        <div class="name pb-1">
-            {{ name }}
-        </div>
-        <div class="date">
-            {{ subject.createdAt | dateTimeFilter }}
-        </div>
-
-        <div class="stat-info small mr-2 mb-2">
-            <div>
-                <i class="el-icon-camera-solid color-primary"></i>
-                <span class="value">
-                    {{ subject.faces.length }}
-                </span>
+        <div class="info px-2 py-2">
+            <div class="name pb-1">
+                {{ name }}
             </div>
-            <div class="label">rostros</div>                      
+            <div class="date">
+                {{ subject.createdAt | dateTimeFilter }}
+            </div>
+
+            <div class="stat-info small mr-2 mb-2">
+                <div>
+                    <i class="el-icon-camera-solid color-primary"></i>
+                    <span class="value">
+                        {{ subject.faces.length }}
+                    </span>
+                </div>
+                <div class="label">rostros</div>                      
+            </div>
         </div>
-    </div>
-</el-card>
+    </el-card>
+</div>
 
 </template>
 
@@ -54,12 +53,17 @@ export default {
         subjectId: {
             type: [Number, String],
             required: true
+        },
+        focus: {
+            type: Boolean,
+            default: false
         }
     },
 
     computed: {
         name() {
-            return this.subject.fullName || `No identificado `;
+            const fullName = this.subject.name + ' ' + this.subject.lastName;
+            return fullName || 'No identificado';
         },
         subject() {
             this.$store.dispatch('subjects/getItem', this.subjectId);
@@ -74,9 +78,20 @@ export default {
 </script>
 
 <style lang="scss">
+
 .subject-card {
-    width: 100%;
-    border: none;
+    &:hover {
+        cursor: pointer;
+    }
+
+    &.focus .el-card {
+        background-color: #ecf5ff;
+    }    
+
+    .el-card {
+        border: none;
+    }
+
     .el-card__body {
         padding: 0;
     }

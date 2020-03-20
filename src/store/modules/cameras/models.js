@@ -81,6 +81,12 @@ class CameraFilter extends Model {
             writable: true,
             api: 'address',
             type: String
+        },
+        orderBy: {
+            writable: true,
+            api: 'order_by',
+            type: String,
+            default: '-name'
         }
     }
 }

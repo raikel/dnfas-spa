@@ -6,6 +6,7 @@ import settings from './modules/settings';
 import user from './modules/user';
 import videos from './modules/videos';
 import subjects from './modules/subjects';
+import demograp from './modules/demograp';
 import subjectSegments from './modules/subject-segments';
 import faces from './modules/faces';
 import faceRecos from './modules/face-recos';
@@ -15,6 +16,7 @@ import tasks from './modules/tasks';
 import stats from './modules/stats';
 import system from './modules/system';
 import notifications from './modules/notifications';
+import tags from './modules/tags';
 
 Vue.use(Vuex);
 
@@ -25,6 +27,7 @@ const store = new Vuex.Store({
         user,
         videos,
         subjects,
+        demograp,
         subjectSegments,
         faces,
         faceRecos,
@@ -33,7 +36,8 @@ const store = new Vuex.Store({
         tasks,
         stats,
         system,
-        notifications
+        notifications,
+        tags
     },
     getters
 });

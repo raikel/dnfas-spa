@@ -1,58 +1,52 @@
 <template>
-    <div class="cameras-map">
-        <div class="map-container">
-            <div ref="map" class="map-wrapper"></div>
 
-            <!-- <v-btn
-                @click="updateMapView"
-                fixed
-                dark
-                fab
-                bottom
-                right
-                color="primary"
-                style="margin-bottom: 62px"
-            >
-                <v-icon>my_location</v-icon>
-            </v-btn>-->
-        </div>
+<div class="cameras-map">
+    <div class="map-container">
+        <div ref="map" class="map-wrapper"></div>
 
-        <camera-card
-            v-if="selIndex !== undefined"
-            class="mb-2 ml-2"
-            :camera="cameras[selIndex]"                   
+        <!-- <v-btn
+            @click="updateMapView"
+            fixed
+            dark
+            fab
+            bottom
+            right
+            color="primary"
+            style="margin-bottom: 62px"
         >
-        </camera-card>
-
-        <div class="map-actions">
-            <el-autocomplete
-                v-model="queryPlace"
-                :fetch-suggestions="findPlaces"
-                clearable
-                placeholder="Busca un lugar"
-                @select="onQueryPlaceSelected"
-            >
-                <template slot-scope="{ item }">
-                    {{ item.title }}, {{ item.address }}
-                </template>
-            </el-autocomplete>
-        </div>
+            <v-icon>my_location</v-icon>
+        </v-btn>-->
     </div>
+
+    <div class="map-actions">
+        <el-autocomplete
+            v-model="queryPlace"
+            :fetch-suggestions="findPlaces"
+            clearable
+            placeholder="Busca un lugar"
+            @select="onQueryPlaceSelected"
+        >
+            <template slot-scope="{ item }">
+                {{ item.title }}, {{ item.address }}
+            </template>
+        </el-autocomplete>
+    </div>
+</div>
+
 </template>
 
 <script>
 /* global H*/
 
+import { mapGetters } from 'vuex';
 import HereMap from '@/lib/heremaps';
 import placeIcon from './map-marker.svg';
-import CameraCard from './CameraCard';
-const QUERY_PLACE_MIN_LENGTH = 3;
+const minQueryLength = 2;
 
 export default {
     name: 'CamerasMap',
 
     components: {
-        CameraCard
     },
 
     props: {
@@ -70,28 +64,29 @@ export default {
             type: Number,
             default: 16,
             required: false
+        },
+        focusId: {
+            type: [Number, String],
+            default: null
         }
     },
 
     data() {
         return {
-            map: {},
+            map: null,
             queryPlace: '',
             loadingPlaces: false,
             behavior: null,
-            markerGroup: undefined,
-            selIndex: undefined,
-            markerIcon: undefined
+            markerGroup: null,
+            selIndex: null,
+            markerIcon: null
         };
     },
 
     computed: {
-        cameras() {
-            return this.$store.state.cameras.items;
-        },
-        camerasCount() {
-            return this.$store.state.cameras.count;
-        },
+        ...mapGetters({
+            cameras: 'cameras/sortedItems'
+        }),
         loading() {
             return this.$store.state.cameras.loading;
         }
@@ -133,13 +128,13 @@ export default {
 
         const self = this;
         this.markerGroup.addEventListener('tap', function(evt) {
-            self.selIndex = evt.target.getData();
+            self.onMarkerClick(evt.target.getData());
             evt.stopPropagation();
         }, false);
 
         this.map.addEventListener('tap', function(evt) {
             if (!(evt.target instanceof H.map.Marker)) {
-                self.selIndex = undefined;                
+                self.onMarkerClick(null);                
             }
         }, false);
 
@@ -167,6 +162,11 @@ export default {
 
     methods: {
 
+        onMarkerClick(cameraId) {
+            const focusId = cameraId === this.focusId ? null : cameraId;
+            this.$emit('update:focus-id', focusId);
+        },
+
         onQueryPlaceSelected(place) {
             this.setView(place.location);            
         },
@@ -182,7 +182,7 @@ export default {
                         }, { 
                             icon: this.markerIcon
                         });
-                        marker.setData(i);
+                        marker.setData(camera.id);
                         this.markerGroup.addObject(marker);
                     }                
                 }
@@ -198,7 +198,7 @@ export default {
         },
 
         findPlaces(query, cb) {
-            if (query && query.length >= QUERY_PLACE_MIN_LENGTH && !this.loadingPlaces) {
+            if (query && query.length >= minQueryLength && !this.loadingPlaces) {
                 this.loadingPlaces = true;
                 
                 HereMap.findPlaces(query, this.location).then(
@@ -279,14 +279,6 @@ export default {
     .bottom-action-bar {
         flex-grow: 0;
         width: 100%;
-    }
-
-    .camera-card {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        z-index: 12;
-        width: 350px;
     }
 }
 </style>

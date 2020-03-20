@@ -1,4 +1,18 @@
 export default {
+    timeFilter: function(value) {
+        return value ? 
+            new Date(value).toLocaleTimeString(
+                'es-MX', { 
+                    timeZone: 'America/Mexico_City'
+                }) : '—';
+    },
+    dateFilter: function(value) {
+        return value ? 
+            new Date(value).toLocaleDateString(
+                'es-MX', { 
+                    timeZone: 'America/Mexico_City'
+                }) : '—';
+    },
     dateTimeFilter(value, prefix = '', suffix = '') {
         const repr = value ? 
             new Date(value).toLocaleString(

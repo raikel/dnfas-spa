@@ -123,20 +123,38 @@ const videoModel = new VideoModel();
 
 class VideoFilter extends Model {
     props = {
-        path: {
-            writable: true,
-            api: 'path',
-            type: String
-        },
         name: {
             writable: true,
             api: 'name',
             type: String
         },
-        tasksRunning: {
+        minCreatedAt: {
             writable: true,
-            api: 'tasks_running',
-            type: Number
+            api: 'min_created_at',
+            type: Date
+        },
+        maxCreatedAt: {
+            writable: true,
+            api: 'max_created_at',
+            type: Date
+        },
+        minDuration: {
+            writable: true,
+            api: 'min_duration',
+            type: Number,
+            writer: val => 60 * val
+        },
+        maxDuration: {
+            writable: true,
+            api: 'max_duration',
+            type: Number,
+            writer: val => 60 * val
+        },
+        orderBy: {
+            writable: true,
+            api: 'order_by',
+            type: String,
+            default: '-created_at'
         }
     }
 }

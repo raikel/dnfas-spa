@@ -1,12 +1,19 @@
 <template>
 
 <div class="tasks-filter">
-    <h2 class="pb-2 mb-4 text-lg">Buscar Tareas</h2>
     <el-form
         label-position="top"
         :disabled="loading"
         size="small"
     >
+        <el-form-item label="Ordenar por">
+            <order-select
+                :order-choices="orderChoices"
+                :value="filter.orderBy"                    
+                @change="val => onParamChange({orderBy: val})"
+            ></order-select>           
+        </el-form-item>
+
         <el-form-item label="Nombre">
             <el-input
                 clearable
@@ -44,17 +51,6 @@
                 ></el-option>
             </el-select>
         </el-form-item>
-
-        <el-button
-            type="info"
-            icon="el-icon-refresh"
-            class="block mt-3"
-            :disabled="loading"
-            @click="onClearClick"             
-        >
-            Limpiar filtro
-        </el-button>
-
     </el-form>
 </div>
 
@@ -62,16 +58,22 @@
 
 <script>
 
-import { typeChoices, statusChoices } from './data';
+import OrderSelect from '@/components/OrderSelect';
+import { typeChoices, statusChoices, orderChoices } from './data';
 
 export default {
     name: 'TasksFilter',
+
+    components: {
+        OrderSelect
+    },
 
     data() {
         return {
             loading: false,
             typeChoices: typeChoices,
-            statusChoices: statusChoices
+            statusChoices: statusChoices,
+            orderChoices: orderChoices
         };
     },
 
@@ -82,14 +84,8 @@ export default {
     },
 
     methods: {
-
         onParamChange(data) {
             this.$store.dispatch('tasks/setFilter', data);
-            this.$store.dispatch('tasks/fetchItems');
-        },
-
-        onClearClick() {
-            this.$store.dispatch('tasks/resetFilter');
             this.$store.dispatch('tasks/fetchItems');
         }
     }
@@ -97,13 +93,4 @@ export default {
 </script>
 
 <style lang="scss">
-
-.tasks-filter {
-    .range .el-form-item__content {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-    }
-}
-
 </style>

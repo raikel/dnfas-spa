@@ -9,15 +9,21 @@
             transition="el-opacity-transition"
         >
             <el-button
+                plain
+                type="success"
                 :icon="icon"
-                @click="$emit('click')"
+                :disabled="disabled"
+                @click="onButtonClick"
             ></el-button>
         </el-tooltip>
 
         <el-button
             v-else
+            plain
+            type="success"
             :icon="icon"
-            @click="$emit('click')"
+            :disabled="disabled"
+            @click="onButtonClick"
         ></el-button>
     </div>
 </template>
@@ -38,6 +44,10 @@ export default {
         active: {
             type: Boolean,
             default: false
+        },
+        disabled: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -45,6 +55,10 @@ export default {
     },
 
     methods: {
+        onButtonClick(event) {
+            event.currentTarget.blur();
+            this.$emit('click');
+        }
     }
 };
 </script>
@@ -54,18 +68,17 @@ export default {
 .tool-button {
     .el-button {
         border: none;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-        border-radius: 12px;
-        padding: 12px 14px;
+        border-radius: 8px;
+        padding: 8px 10px;
     }
     i {
-        font-size: 24px;
+        font-size: 18px;
     }
     &.active {
         .el-button {
             color: #FFFFFF;
-            background-color: #43a047;
-            border-color: #43a047;
+            background-color: #409eff;
+            border-color: #409eff;
         }
     }
 }

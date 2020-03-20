@@ -120,6 +120,12 @@ class SubjectFilter extends Model {
     SKIN_BLACK = 'black'
 
     props = {
+        orderBy: {
+            writable: true,
+            api: 'order_by',
+            type: String,
+            default: '-created_at'
+        },
         name: {
             writable: true,
             api: 'name',
@@ -201,76 +207,10 @@ class SubjectFilter extends Model {
 
 const subjectFilter = new SubjectFilter();
 
-class AgeStatsModel extends Model {
-    props = {
-        counts: {
-            writable: false,
-            api: 'counts',
-            type: Number,
-            many: true
-        },
-        meanValue: {
-            writable: false,
-            api: 'mean_value',
-            type: Number
-        },
-        minValue: {
-            writable: false,
-            api: 'min_value',
-            type: Number
-        },
-        maxValue: {
-            writable: false,
-            api: 'max_value',
-            type: Number
-        }
-    }
-}
-
-const ageStatsModel = new AgeStatsModel();
-
-class DemograpModel extends Model {
-    props = {
-        ageLabels: {
-            writable: false,
-            api: 'age_labels',
-            type: Number,
-            many: true
-        },
-        menAges: {
-            writable: false,
-            api: 'men_ages',
-            type: Object,
-            model: ageStatsModel
-        },
-        womenAges: {
-            writable: false,
-            api: 'women_ages',
-            type: Object,
-            model: ageStatsModel
-        },
-        menCount: {
-            writable: false,
-            api: 'men_count',
-            type: Number,
-            default: 0
-        },
-        womenCount: {
-            writable: false,
-            api: 'women_count',
-            type: Number,
-            default: 0
-        }
-    }
-}
-
-const demograpModel = new DemograpModel();
-
 export {
     SubjectModel,
     subjectModel,
     SubjectFilter,
-    subjectFilter,
-    demograpModel
+    subjectFilter
 };
 

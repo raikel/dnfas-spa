@@ -1,34 +1,37 @@
 <template>
 
-<div v-if="video" class="video-card">
-    <router-link :to="linkRoute">
-        <el-card>
-            <div class="thumb">
-                <img
-                    alt="" 
-                    :src="thumb.image"
-                    @mouseover="startTimer"
-                    @mouseleave="stopTimer"
-                >
-                <div v-if="hasTasks" class="label bg-danger px-1 m-2">
-                    Analizando
-                </div>
+<div 
+    v-if="video" 
+    class="video-card" 
+    :class="{'focus': focus}" 
+    @click="$emit('click')"
+>
+    <el-card>
+        <div class="thumb">
+            <img
+                alt="" 
+                :src="thumb.image"
+                @mouseover="startTimer"
+                @mouseleave="stopTimer"
+            >
+            <div v-if="hasTasks" class="label bg-danger px-1 m-2">
+                Analizando
             </div>
+        </div>
 
-            <div class="px-2 py-3">
-                <div class="flex-row jb ae">
-                    <div class="mr-1">
-                        <div class="date text-sm">
-                            {{ video.createdAt | dateTimeFilter }}
-                        </div>
-                        <div class="duration text-md">
-                            {{ video.durationSeconds | timeDurationFilter }}
-                        </div>
+        <div class="px-2 py-3">
+            <div class="flex-row jb ae">
+                <div class="mr-1">
+                    <div class="date text-sm">
+                        {{ video.createdAt | dateTimeFilter }}
+                    </div>
+                    <div class="duration text-md">
+                        {{ video.durationSeconds | timeDurationFilter }}
                     </div>
                 </div>
             </div>
-        </el-card>
-    </router-link>
+        </div>
+    </el-card>
 </div>
 
 </template>
@@ -42,6 +45,10 @@ export default {
         videoId: {
             type: [Number, String],
             required: true
+        },
+        focus: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -56,12 +63,6 @@ export default {
         video() {
             this.$store.dispatch('videos/getItem', this.videoId);
             return this.$store.state.videos.items[this.videoId];
-        },
-        linkRoute() {
-            return {
-                name: 'VideoDetails', 
-                params: { videoId: this.video.id }
-            };
         },
         thumb() {
             return this.video.thumbs[this.thumbInd];

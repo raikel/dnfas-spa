@@ -1,22 +1,13 @@
 <template>
 
 <div class="tasks-list">
-
-    <list-header 
-        class="mb-4"
-        :show-count="tasks.length"
-        :total-count="tasksCount"
-        :order-options="orderOptions"
-        @order-change="setOrder"
-    ></list-header> 
-
     <el-row
         v-if="tasks.length" 
         :gutter="8"
     >
         <el-col
-            v-for="(task, index) in tasks"
-            :key="index"
+            v-for="task in tasks"
+            :key="task.id"
             :xs="24" 
             :sm="12" 
             :md="8" 
@@ -25,7 +16,9 @@
         >
             <task-card
                 class="mb-2"
-                :task-id="task.id"                  
+                :task-id="task.id"
+                :focus="task.id === focusId"
+                @click="onTaskClick(task.id)"                
             ></task-card>
         </el-col>
     </el-row>
@@ -33,7 +26,7 @@
     <empty
         v-else
         title="Sin elementos"
-        message="No existe ninguna cámara que coincida con los criterios de búsqueda"
+        message="No existen resultados para mostrar"
         icon-size="3em"
         height="383px"
         icon="el-icon-video-task"
@@ -58,29 +51,14 @@
 import { mapGetters } from 'vuex';
 import AutoUpdate from '@/mixins/AutoUpdate';
 import Empty from '@/components/Empty';
-import ListHeader from '@/components/ListHeader';
 import TaskCard from './TaskCard';
-
-const ORDER_OPTIONS = [    
-    {
-        label: 'Fecha y hora', 
-        value: 'created_at'
-    }, {
-        label: 'Nombre', 
-        value: 'name'
-    }, {
-        label: 'Ubicación', 
-        value: 'address'
-    }
-];
 
 export default {
     name: 'TasksList',
 
     components: {
         TaskCard,
-        Empty,
-        ListHeader
+        Empty
     },
 
     mixins: [AutoUpdate],
@@ -89,12 +67,15 @@ export default {
         autoUpdate: {
             type: Boolean,
             default: false
+        },
+        focusId: {
+            type: [Number, String],
+            default: null
         }
     },
 
     data() {
         return {
-            orderOptions: ORDER_OPTIONS
         };
     },
 
@@ -113,20 +94,17 @@ export default {
     methods: {        
         update() {
             this.updateList();
-        },
-
+        },        
         updatePage: function(number) {
             this.$store.dispatch('tasks/setPage', number - 1);
             this.updateList();
         },
-
-        setOrder(order) {
-            this.$store.dispatch('tasks/setOrder', order);
-            this.updateList();
-        },
-
         updateList: function() {
             this.$store.dispatch('tasks/fetchItems');
+        },
+        onTaskClick(taskId) {
+            const focusId = taskId === this.focusId ? null : taskId;
+            this.$emit('update:focus-id', focusId);
         }
     }
 };
