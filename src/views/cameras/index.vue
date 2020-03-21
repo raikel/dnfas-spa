@@ -2,7 +2,6 @@
 
 <split-view class="cameras-index">
     <template v-slot:main>
-
         <template v-if="main === 'list'">
             <list-header 
                 class="mb-4"
@@ -71,7 +70,7 @@
                 <tool-button
                     v-if="main === 'map'"
                     class="ml-1"
-                    tooltip="Vista de mapa" 
+                    tooltip="Volver al listado" 
                     icon="el-icon-s-grid"
                     @click="main = 'list'"
                 ></tool-button>

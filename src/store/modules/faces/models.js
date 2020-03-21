@@ -55,6 +55,11 @@ class FaceModel extends Model {
             writable: false,
             api: 'timestamp',
             type: Date
+        },
+        task: {
+            writable: false,
+            api: 'task',
+            type: Number
         }
     }
 }

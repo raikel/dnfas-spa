@@ -62,8 +62,10 @@ export default {
 
     computed: {
         name() {
-            const fullName = this.subject.name + ' ' + this.subject.lastName;
-            return fullName || 'No identificado';
+            if (this.subject.name || this.subject.lastName) {
+                return `${this.subject.name} ${this.subject.lastName}`;
+            }
+            return 'No identificado';
         },
         subject() {
             this.$store.dispatch('subjects/getItem', this.subjectId);

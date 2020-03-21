@@ -13,7 +13,16 @@
     @validate="onValidate" 
 >
 
-    <el-form-item label="Etiquetas de tareas de entrada">
+    <el-form-item label="Tareas de entrada (por nombre)">
+        <query-select
+            placeholder="Seleccione una o varias tareas"
+            store="tasks"
+            :value="config.filterTasks"
+            @change="val => onParamChange({filterTasks: val})"
+        ></query-select>
+    </el-form-item>
+
+    <el-form-item label="Tareas de entrada (por etiqueta)">
         <el-select
             multiple
             filterable
@@ -30,7 +39,7 @@
                 :value="tag.id"
             ></el-option>
         </el-select>
-    </el-form-item>
+    </el-form-item>    
 
     <el-form-item 
         label="Umbral de similitud" 
@@ -143,13 +152,19 @@
 
 <script>
 
+import { mapGetters } from 'vuex';
 import { tagModel } from '@/store/modules/tags/models';
+import QuerySelect from '@/components/QuerySelect';
 
 const rules = {
 };
 
 export default {
     name: 'FclTaskConfig',
+
+    components: {
+        QuerySelect
+    },
 
     props: {
         taskId: {
@@ -163,16 +178,19 @@ export default {
             loading: false,
             alert: null,
             rules: rules,
-            relativeTime: true,
-            tagsChoices: []
+            relativeTime: true
         };
     },
 
     computed: {
+        ...mapGetters({
+            tagsChoices: 'tags/sortedItems',
+            tasks: 'tasks/sortedItems'
+        }),
         config() {
             const task = this.$store.state.tasks.items[this.taskId];
             return task ? task.config : null;
-        }
+        }   
     },
 
     created() {
@@ -184,9 +202,7 @@ export default {
         getTags() {
             this.$store.dispatch(
                 'tags/fetchItems', {model: tagModel.MODEL_TASK}
-            ).then(tags => {
-                this.tagsChoices = tags;
-            });
+            );
         },
 
         onParamChange(data) {

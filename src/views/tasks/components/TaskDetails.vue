@@ -8,6 +8,7 @@
 <script>
 import InfoList from '@/components/InfoList';
 import { typeOptions, statusOptions } from './data';
+import { taskModel } from '@/store/modules/tasks/models';
 import filters from '@/filters';
 
 export default {
@@ -35,27 +36,57 @@ export default {
             return this.$store.state.tasks.items[this.taskId];
         },
         infoItems() {
-            const info = [{
+            const inf = this.task;
+
+            const data = [{
                 name: 'Nombre',
-                value: this.task.name
+                value: inf.name
             }, {
                 name: 'Tipo de tarea',
-                value: typeOptions[this.task.taskType].label
+                value: typeOptions[inf.taskType].label
             }, {
                 name: 'Estado',
-                value: statusOptions[this.task.status].label
+                value: statusOptions[inf.status].label
             }, {
-                name: 'Creada',
-                value: filters.dateTimeFilter(this.task.createdAt)
+                name: 'Creación',
+                value: filters.dateTimeFilter(inf.createdAt)
             }, {
-                name: 'Actualizada',
-                value: filters.dateTimeFilter(this.task.updatedAt)
+                name: 'Actualización',
+                value: filters.dateTimeFilter(inf.updatedAt)
             }, {
                 name: 'Inicio de ejecución',
-                value: filters.dateTimeFilter(this.task.startedAt)
+                value: filters.dateTimeFilter(inf.startedAt)
+            }, {
+                name: 'Fin de ejecución',
+                value: filters.dateTimeFilter(inf.finishedAt),
+                divider: true
             }];
 
-            return info;
+            let data_ = [];
+            switch (inf.taskType) {
+                case taskModel.TYPE_FACE_CLUSTERING:
+                    data_ = this.fclTaskInfo();
+                    break;            
+                default:
+                    break;
+            }
+
+            return data.concat(data_);
+        }
+    }, 
+
+    methods: {
+        fclTaskInfo() {
+            const inf = this.task.info;
+
+            return [{
+                name: 'Número de rostros',
+                value: inf.facesCount || '' 
+            }, {
+                name: 'Tiempo de procesamiento',
+                value: inf.processingTime ? 
+                    filters.timeDurationFilter(inf.processingTime) : ''
+            }];
         }
     }
 };

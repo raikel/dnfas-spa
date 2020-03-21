@@ -6,7 +6,7 @@
         class="mr-1"
         tooltip="Iniciar ejecución" 
         icon="el-icon-video-play"
-        @click="onStart"
+        @click="onControl('start')"
     ></tool-button>
 
     <tool-button
@@ -14,7 +14,7 @@
         class="mr-1"
         tooltip="Pausar ejecución" 
         icon="el-icon-video-pause"
-        @click="onPause"
+        @click="onControl('pause')"
     ></tool-button>
 
     <tool-button
@@ -22,14 +22,14 @@
         class="mr-1"
         tooltip="Reanudar ejecución" 
         icon="el-icon-video-play"
-        @click="onResume"
+        @click="onControl('resume')"
     ></tool-button>
 
     <tool-button
         tooltip="Detener ejecución" 
         icon="el-icon-switch-button"
         :disabled="!isRunning && !isPaused"
-        @click="onStop"
+        @click="onControl('stop')"
     ></tool-button>           
 </div>
 
@@ -76,17 +76,12 @@ export default {
     },
 
     methods: {
-        onStart() {
-            this.$store.dispatch('tasks/start', this.taskId);
-        },
-        onPause() {
-            this.$store.dispatch('tasks/pause', this.taskId);
-        },
-        onResume() {
-            this.$store.dispatch('tasks/resume', this.taskId);
-        },
-        onStop() {
-            this.$store.dispatch('tasks/stop', this.taskId);
+        onControl(name) {
+            this.$store.dispatch(
+                `tasks/${name}`, this.taskId
+            ).then(() => {
+                this.$emit('change', name);
+            });            
         }
     }
 };

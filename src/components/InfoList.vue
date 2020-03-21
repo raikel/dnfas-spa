@@ -5,6 +5,7 @@
         v-for="(item, index) in nonEmpty" 
         :key="index"
         class="info-item py-2"
+        :class="{divider: item.divider}"
     >
         <template v-if="item.value || item.default">
             <div class="text-sm text-w6 color-g5 mb-1 label">
@@ -50,6 +51,9 @@ export default {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        .divider {
+            border-bottom: 1px solid #dcdfe6;
         }
     }
 </style>

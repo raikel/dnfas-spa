@@ -91,11 +91,6 @@ class SubjectModel extends Model {
             api: 'pred_age',
             type: Number
         },
-        task: {
-            writable: false,
-            api: 'task',
-            type: Number
-        },
         createdAt: {
             writable: false,
             api: 'created_at',

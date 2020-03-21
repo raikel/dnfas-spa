@@ -1,69 +1,60 @@
 <template>
 
 <div v-if="subject" class="subject-faces">
-    <div class="flex-row js as">
-        <div class="face-images mr-3">
-            <el-carousel 
-                v-if="faces.length > 0"
-                :autoplay="false" 
-                height="200px"
-                @change="ind => curFaceInd = ind"
-            >
-                <el-carousel-item                    
-                    v-for="face in faces" 
-                    :key="face.id"
-                >
-                    <image-overlay 
-                        :image="face.image" 
-                        height="200px" 
-                        width="100%"
-                    >
-                        <el-button 
-                            icon="el-icon-view" 
-                            type="text"
-                            @click="onViewFace(face.id)"
-                        >
-                            Eliminar
-                        </el-button>
-                    </image-overlay>
-                </el-carousel-item>
-            </el-carousel>
-            <empty
-                v-else
-                v-loading="loading"
-                title="Imágenes"
-                message="Selecciona una imagen"
-                icon-size="3em"
-                height="200px"
-                icon="el-icon-camera-solid"
-                background="#eee"
-            ></empty>
-        </div>
-        
-        <info-list :items="infoItems">
-        </info-list>  
+    
+    <div v-if="subject.image" class="main">
+        <div class="frame-wraper">
+            <div v-if="selFace && selFrame" class="frame">
+                <img class="face-frame" :src="selFrame.image" alt="">
+                <focus-area
+                    :box="selFace.box"
+                    :highlight="true"
+                ></focus-area>
+            </div>
+            <div v-else-if="selFace" class="frame">
+                <img class="face-frame" :src="selFace.image" alt="">
+            </div>
+            <div v-if="timestamp" class="frame-timestamp">
+                {{ timestamp }}
+            </div>
+        </div>            
+        <thumbs-list
+            v-model="selFaceId"
+            :thumbs="thumbs"
+            class="mt-3"
+        ></thumbs-list>
     </div>
+
+    <empty
+        v-else
+        title="Sin imágenes"
+        message="Aún no se ha registrado ninguna imagen"
+        icon="el-icon-camera-solid"
+        icon-size="4em"
+        height="600px"
+        class="main"
+    ></empty>
 </div>
 
 </template>
 
 <script>
 
-import InfoList from '@/components/InfoList';
+/* import StepButtons from '@/components/StepButtons'; */
+import FocusArea from '@/components/FocusArea';
+import ThumbsList from '@/components/ThumbsList';
 import Empty from '@/components/Empty';
-import ImageOverlay from '@/components/ImageOverlay';
-import { sexChoices, skinChoices } from './data';
 import filters from '@/filters';
 
 export default {
     name: 'SubjectFaces',
 
     components: {
+        FocusArea,
         Empty,
-        ImageOverlay,
-        InfoList
+        ThumbsList
     },
-    
+
     props: {
         subjectId: {
             type: [Number, String],
@@ -71,17 +62,16 @@ export default {
         }
     },
 
-    data() {
+    data: function() {
         return {
             loading: false,
-            sexChoices: sexChoices,
-            skinChoices: skinChoices,
-            curFaceInd: 0
+            selFaceId: 0
         };
     },
 
     computed: {
         subject() {
+            this.$store.dispatch('subjects/getItem', this.subjectId);
             return this.$store.state.subjects.items[this.subjectId];
         },
         faces() {
@@ -95,27 +85,34 @@ export default {
             });
             return faces;
         },
-        infoItems() {
-            const face = this.faces.length ? 
-                this.faces[this.curFaceInd] : {};
-
-            const info = [{
-                name: 'Sexo estimado',
-                value: face.predSex ? sexChoices[face.predSex] : 'No establecido'
-            }, {
-                name: 'Edad estimada',
-                value: face.predAge ? face.predAge.toFixed(1) : 'No establecida'
-            }, {
-                name: 'Marca de tiempo',
-                value: filters.dateTimeFilter(face.createdAt)
-            }];
-            return info;
-        }
-    },
-
-    methods: {
-        onViewFace() {
-
+        selFace() {
+            return this.$store.state.faces.items[this.selFaceId];
+        },
+        selFrame() {
+            if (this.selFace && this.selFace.frame) {
+                const frameId = this.selFace.frame;
+                this.$store.dispatch('frames/getItem', frameId);
+                return this.$store.state.frames.items[frameId];
+            }
+            return null;
+        },
+        thumbs() {
+            const thumbs = [];
+            this.faces.forEach(face => {
+                if (face.image) {
+                    thumbs.push({
+                        id: face.id,
+                        image: face.image
+                    });
+                }
+            });
+            return thumbs;
+        },
+        timestamp() {
+            if (this.selFace) {
+                return filters.dateTimeFilter(this.selFace.timestamp);
+            }            
+            return '';
         }
     }
 };
@@ -124,23 +121,40 @@ export default {
 <style lang="scss">
 
 .subject-faces {
-    .image-overlay img {
-        height: 100%;
+
+    width: 100%;
+
+    .frame-wraper {
+        height: 490px;
         width: 100%;
-        background-color: #000000;
-        object-fit: contain;
-        border-radius: 8px;
-    }
-    .el-carousel__item {
+        position: relative;        
+        background: #000000;
         text-align: center;
-    }
-    .el-carousel__indicators {
-        display: none;
-    }
-    .face-images {
-        width: 150px;
-        flex-shrink: 0;
+        overflow: hidden;
+
+        .frame {
+            height: 100%; 
+            position: relative; 
+            display: inline-block
+        }
+
+        img {
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .frame-timestamp {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+            background: rgba($color: #000000, $alpha: 0.5);
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            font-size: 14px;
+        }
     }
 }
-
 </style>

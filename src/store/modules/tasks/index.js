@@ -8,7 +8,7 @@ const PAGE_SIZE = 24;
 
 class TaskApi extends Api {
     control(action, id) {
-        return this.axios.patch(`${this.path}${id}/${action}/`, {});
+        return this.axios.patch(`${this.path}${id}/${action}/`);
     }
     start(id) {
         return this.control('start', id);

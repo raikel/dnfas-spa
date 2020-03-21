@@ -55,8 +55,11 @@
         <template v-else-if="panel === 'details'">
             <div class="text-lg text-w6">Detalles</div>
             <div class="flex-row">
-                <task-control :task-id="curTaskId" class="mr-2">
-                </task-control>
+                <task-control 
+                    :task-id="curTaskId" 
+                    class="mr-2"
+                    @change="onTaskControl"
+                ></task-control>
                 <tool-button
                     class="ml-1"
                     tooltip="Editar tarea" 
@@ -179,6 +182,10 @@ export default {
     },
 
     methods: {
+
+        onTaskControl() {
+            this.$store.dispatch('tasks/fetchItems');
+        },
 
         onTaskEdit() {
             if (this.curTaskId !== null) {

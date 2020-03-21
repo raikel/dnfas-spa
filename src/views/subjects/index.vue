@@ -2,19 +2,27 @@
 
 <split-view class="subjects-index">
     <template v-slot:main>
-        <list-header 
-            class="mb-4"
-            :show-count="subjects.length"
-            :total-count="subjectsCount"
-            add-text="Nuevo Sujeto"
-            @create="onCreateSubject"
-        ></list-header>
+        <template v-if="main === 'list'">
+            <list-header 
+                class="mb-4"
+                :show-count="subjects.length"
+                :total-count="subjectsCount"
+                add-text="Nuevo Sujeto"
+                @create="onCreateSubject"
+            ></list-header>
 
-        <subjects-list 
-            :auto-update="autoUpdate"
-            :focus-id="curSubjectId"
-            @update:focus-id="onSubjectListChange"
-        ></subjects-list>
+            <subjects-list 
+                :auto-update="autoUpdate"
+                :focus-id="curSubjectId"
+                @update:focus-id="onSubjectListChange"
+            ></subjects-list>
+        </template>
+
+        <template v-else-if="main === 'view'">
+            <subject-faces
+                :subject-id="curSubjectId"
+            ></subject-faces>
+        </template>
 
         <el-dialog
             title="Advertencia"
@@ -55,6 +63,20 @@
         <template v-else-if="panel === 'details'">
             <div class="text-lg text-w6">Detalles</div>
             <div class="flex-row">
+                <tool-button
+                    v-if="main === 'list'"
+                    class="ml-1"
+                    tooltip="Examinar imágenes" 
+                    icon="el-icon-camera"
+                    @click="main = 'view'"
+                ></tool-button>
+                <tool-button
+                    v-else-if="main === 'view'"
+                    class="ml-1"
+                    tooltip="Volver al listado" 
+                    icon="el-icon-s-grid"
+                    @click="main = 'list'"
+                ></tool-button>
                 <tool-button
                     class="ml-1"
                     tooltip="Editar sujeto" 
@@ -114,6 +136,7 @@ import SubjectsList from './components/SubjectsList';
 import SubjectsFilter from './components/SubjectsFilter';
 import SubjectEditor from './components/SubjectEditor';
 import SubjectDetails from './components/SubjectDetails';
+import SubjectFaces from './components/SubjectFaces';
 
 const newSubjectId = 'newId';
 
@@ -127,13 +150,15 @@ export default {
         ListHeader,
         SubjectEditor,
         SubjectDetails,
-        ToolButton
+        ToolButton,
+        SubjectFaces
     },
 
     data() {
         return {
             newSubjectId: newSubjectId,
             autoUpdate: false,
+            main: 'list',
             panel: 'search',
             curSubjectId: null,
             showDeleteDialog: false,
