@@ -65,7 +65,7 @@ export default {
     data: function() {
         return {
             loading: false,
-            selFaceId: 0
+            selFaceId: null
         };
     },
 
@@ -114,6 +114,16 @@ export default {
             }            
             return '';
         }
+    },
+
+    created() {
+        this.$store.dispatch(
+            'subjects/getItem', this.subjectId
+        ).then(subject => {
+            if (subject.faces.length) {
+                this.selFaceId = subject.faces[0];
+            }
+        });
     }
 };
 </script>

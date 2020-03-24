@@ -10,7 +10,7 @@
             :src="thumb.image"
             :style="{width: width, height: height}"            
             :class="{'selected': value === thumb.id}"
-            class="thumb"
+            class="thumb mr-1"
             @click="onThumbClick(thumb.id)"
         >          
     </div>    
@@ -62,11 +62,12 @@ export default {
     justify-content: flex-start;
     align-items: flex-start;
     .thumb {
+        border-radius: 6px;
         object-fit: cover;
         cursor: pointer;
-        margin-right: 8px;
+        border: 2px solid transparent;
         &.selected {
-            border: 2px solid #43a047;
+            border-color: #43a047;
         }
     }
 }

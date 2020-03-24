@@ -86,9 +86,19 @@ class SubjectModel extends Model {
             ],
             default: ''
         },
+        predSexScore: {
+            writable: false,
+            api: 'pred_sex_score',
+            type: Number
+        },
         predAge: {
             writable: false,
             api: 'pred_age',
+            type: Number
+        },
+        predAgeVar: {
+            writable: false,
+            api: 'pred_age_var',
             type: Number
         },
         createdAt: {
@@ -99,6 +109,11 @@ class SubjectModel extends Model {
         updatedAt: {
             writable: false,
             api: 'updated_at',
+            type: Date
+        },
+        timestamp: {
+            writable: false,
+            api: 'timestamp',
             type: Date
         }
     }

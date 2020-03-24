@@ -26,12 +26,13 @@
     ></empty> 
 
     <el-pagination 
-        :total="subjectCount" 
-        :page-size="pageSize" 
-        :background="true"
         hide-on-single-page
         layout="prev, pager, next"
         class="mt-4"
+        :page-size="pageSize" 
+        :background="true"
+        :current-page="pageNumber"
+        :total="subjectCount"
         @current-change="updatePage"
     ></el-pagination>
 </div> 
@@ -64,6 +65,9 @@ export default {
         ...mapGetters({
             subjects: 'demograp/sortedItems'
         }),
+        pageNumber: function() {
+            return this.$store.state.demograp.pageNumber + 1;
+        },
         pageSize: function() {
             return this.$store.state.demograp.pageSize;
         },
@@ -79,11 +83,6 @@ export default {
 
         updatePage: function(number) {
             this.$store.dispatch('demograp/setPage', number - 1);
-            this.updateList();
-        },        
-
-        setOrder(order) {
-            this.$store.dispatch('demograp/setOrder', order);
             this.updateList();
         },
 

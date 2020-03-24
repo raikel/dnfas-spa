@@ -19,7 +19,7 @@
                 {{ name }}
             </div>
             <div class="date">
-                {{ subject.createdAt | dateTimeFilter }}
+                {{ subject.timestamp | dateTimeFilter }}
             </div>
 
             <div class="stat-info small mr-2 mb-2">

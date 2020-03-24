@@ -62,7 +62,7 @@
                 type="datetime"
                 placeholder="Inmediatamente"
                 :value="task.scheduleStartAt"                    
-                @change="val => onParamChange({scheduleStartAt: val})"
+                @input="val => onParamChange({scheduleStartAt: val})"
             ></el-date-picker>
         </el-form-item>
 
@@ -74,7 +74,7 @@
                 type="datetime"
                 placeholder="Sin límite de tiempo"
                 :value="task.scheduleStopAt"                    
-                @change="val => onParamChange({scheduleStopAt: val})"
+                @input="val => onParamChange({scheduleStopAt: val})"
             ></el-date-picker>
         </el-form-item>
 

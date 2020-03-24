@@ -34,5 +34,6 @@ export {
     resetFilter,
     setOrder,
     setPage,
-    setPageSize
+    setPageSize,
+    fetchFile
 } from '../abstract/actions';

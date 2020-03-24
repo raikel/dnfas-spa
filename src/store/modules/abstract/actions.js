@@ -1,4 +1,5 @@
 import { mutTypes } from './types';
+const FileSaver = require('file-saver');
 
 function getItem(context, id) {
     const items = context.state.items;
@@ -156,6 +157,31 @@ function setPageSize({ commit }, size) {
     commit(mutTypes.SET_PAGE_SIZE, size);
 }
 
+function fetchFile(context, params) {
+    const state = context.state;
+    const filter = state.FILTER;
+    const api = state.API;
+    const filterData = filter ? filter.apiPost(state.filter, false) : {};
+
+    params = Object.assign({}, params, filterData);
+
+    context.commit(mutTypes.SET_LOADING, true);
+
+    return new Promise((resolve, reject) => {
+        api.download(params).then((response) => {
+            const fileNameHeader = 'filename';
+            const fileName = response.headers[fileNameHeader];
+            // Let the user save the file.
+            FileSaver.saveAs(response.data, fileName || 'export.xls');
+            context.commit(mutTypes.SET_LOADING, false);
+            resolve();
+        }).catch(error => {
+            context.commit(mutTypes.SET_LOADING, false);
+            reject(error);
+        });
+    });
+}
+
 export {
     getItem,
     fetchItems,
@@ -167,5 +193,6 @@ export {
     resetFilter,
     setOrder,
     setPage,
-    setPageSize
+    setPageSize,
+    fetchFile
 };

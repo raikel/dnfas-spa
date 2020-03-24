@@ -24,21 +24,21 @@
 
         <el-form-item label="Edad" class="range">
             <el-input-number
-                placeholder="Desde" 
-                :controls="false"
-                :min="1" 
+                placeholder="Desde"
+                :min="0"
                 :max="100"
+                :controls="false"
                 :value="filter.minAge"
-                @input="val => onParamChange({minAge: val})"           
+                @change="val => onParamChange({minAge: val})"           
             ></el-input-number>
             <span class="px-2">—</span>
             <el-input-number
                 placeholder="Hasta" 
-                :controls="false"
-                :min="1" 
+                :min="0"
                 :max="100"
+                :controls="false"
                 :value="filter.maxAge"
-                @input="val => onParamChange({maxAge: val})"               
+                @change="val => onParamChange({maxAge: val})"
             ></el-input-number>
         </el-form-item>
 
@@ -61,7 +61,6 @@
         </el-form-item>
 
         <el-form-item label="Tarea">
-
             <el-select
                 v-model="tasks"
                 multiple

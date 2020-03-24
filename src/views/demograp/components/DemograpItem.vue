@@ -2,7 +2,8 @@
 
 <div class="demograp-item">
     <img :src="subject.image" alt="">
-    <div class="info">{{ `${sex}, ${age} años` }}</div>
+    <div class="mt-3 text-sm text-w6">{{ sex }}</div>
+    <div class="text-sm text-w6">{{ age }}</div>
 </div> 
 
 </template>
@@ -15,7 +16,7 @@ const sexOptions = {
 };
 
 export default {
-    name: 'DemograpCard',
+    name: 'DemograpItem',
 
     props: {
         subject: {
@@ -32,10 +33,14 @@ export default {
     computed: {
         sex() {
             const sex = this.subject.predSex;
-            return sex ? sexOptions[sex] : '(?)';
+            const score = (100 * this.subject.predSexScore).toFixed(0);
+            return sex ? 
+                `${sexOptions[sex]} (${score} %)` : 'Sexo no establecido';
         },
         age() {
-            return this.subject.predAge || '(?)';
+            const age = this.subject.predAge;
+            const score = this.subject.predAgeVar.toFixed(1);
+            return age ? `${age} ± ${score} años` : 'Edad no establecida';
         }
     }
     
@@ -53,11 +58,6 @@ export default {
         width: 96px;
         object-fit: cover;
         border-radius: 6px;
-    }
-    .info {
-        margin-top: 12px;
-        font-size: 12px;
-        font-weight: 600;
     }
 }
 

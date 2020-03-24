@@ -11,7 +11,7 @@
                 :order-choices="orderChoices"
                 :value="filter.orderBy"                    
                 @change="val => onParamChange({orderBy: val})"
-            ></order-select>           
+            ></order-select>
         </el-form-item>
 
         <el-form-item label="Edad estimada" class="range">
@@ -21,7 +21,7 @@
                 :min="1" 
                 :max="100"
                 :value="filter.minPredAge"
-                @input="val => onParamChange({minPredAge: val})"           
+                @change="val => onParamChange({minPredAge: val})"           
             ></el-input-number>
             <span class="px-2">—</span>
             <el-input-number
@@ -30,7 +30,7 @@
                 :min="1" 
                 :max="100"
                 :value="filter.maxPredAge"
-                @input="val => onParamChange({maxPredAge: val})"               
+                @change="val => onParamChange({maxPredAge: val})"               
             ></el-input-number>
         </el-form-item>
 

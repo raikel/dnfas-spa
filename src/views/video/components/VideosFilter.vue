@@ -47,7 +47,7 @@
                     :min="0" 
                     :max="1000000"
                     :value="filter.minDuration"                    
-                    @input="val => onParamChange({minDuration: val})"     
+                    @change="val => onParamChange({minDuration: val})"     
                 ></el-input-number>
                 <span class="range-separator">—</span>
                 <el-input-number 
@@ -57,7 +57,7 @@
                     :min="0" 
                     :max="1000000"
                     :value="filter.maxDuration"                    
-                    @input="val => onParamChange({maxDuration: val})"                
+                    @change="val => onParamChange({maxDuration: val})"                
                 ></el-input-number>
             </el-form-item>
         </el-form>

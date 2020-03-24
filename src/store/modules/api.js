@@ -54,6 +54,13 @@ class Api {
     destroy(id) {
         return this.axios.delete(this.path + id + '/');
     }
+
+    download(params) {
+        return this.axios.get(this.path + 'export/', {
+            responseType: 'blob',
+            params: params
+        });
+    }
 }
 
 export {

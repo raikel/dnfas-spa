@@ -34,12 +34,13 @@
     ></empty> 
 
     <el-pagination 
-        :total="camerasCount" 
-        :page-size="pageSize" 
-        :background="true"
         hide-on-single-page
         layout="prev, pager, next"
         class="mt-4"
+        :page-size="pageSize" 
+        :background="true"
+        :current-page="pageNumber"
+        :total="camerasCount"
         @current-change="updatePage"
     ></el-pagination>       
 </div>
@@ -84,6 +85,9 @@ export default {
         }),
         camerasCount() {
             return this.$store.state.cameras.count;
+        },
+        pageNumber: function() {
+            return this.$store.state.cameras.pageNumber + 1;
         },
         pageSize() {
             return this.$store.state.cameras.pageSize;

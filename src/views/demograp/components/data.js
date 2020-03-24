@@ -26,3 +26,20 @@ export const orderChoices = [{
     label: 'Edad', 
     value: 'pred_age'
 }];
+
+export const columns = [{
+    label: 'Id',
+    value: 'id'
+}, {
+    label: 'Imagen',
+    value: 'image'
+}, {
+    label: 'Fecha de creación',
+    value: 'created_at'
+}, {
+    label: 'Sexo estimado',
+    value: 'pred_sex'
+}, {
+    label: 'Edad estimada',
+    value: 'pred_age'
+}];

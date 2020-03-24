@@ -34,12 +34,13 @@
     ></empty> 
 
     <el-pagination 
-        :total="videosCount" 
-        :page-size="pageSize" 
-        :background="true"
         hide-on-single-page
         layout="prev, pager, next"
         class="mt-4"
+        :page-size="pageSize" 
+        :background="true"
+        :current-page="pageNumber"
+        :total="videosCount"
         @current-change="updatePage"
     ></el-pagination>       
 </div>
@@ -84,6 +85,9 @@ export default {
         }),
         videosCount() {
             return this.$store.state.videos.count;
+        },
+        pageNumber: function() {
+            return this.$store.state.videos.pageNumber + 1;
         },
         pageSize() {
             return this.$store.state.videos.pageSize;

@@ -34,12 +34,13 @@
     ></empty> 
 
     <el-pagination 
-        :total="subjectsCount" 
-        :page-size="pageSize" 
-        :background="true"
         hide-on-single-page
         layout="prev, pager, next"
         class="mt-4"
+        :page-size="pageSize" 
+        :background="true"
+        :current-page="pageNumber"
+        :total="subjectsCount"
         @current-change="updatePage"
     ></el-pagination>       
 </div>
@@ -49,7 +50,6 @@
 <script>
 
 import { mapGetters } from 'vuex';
-import AutoUpdate from '@/mixins/AutoUpdate';
 import Empty from '@/components/Empty';
 import SubjectCard from './SubjectCard';
 
@@ -60,8 +60,6 @@ export default {
         SubjectCard,
         Empty
     },
-
-    mixins: [AutoUpdate],
 
     props: {
         autoUpdate: {
@@ -85,6 +83,9 @@ export default {
         }),
         subjectsCount() {
             return this.$store.state.subjects.count;
+        },
+        pageNumber: function() {
+            return this.$store.state.subjects.pageNumber + 1;
         },
         pageSize() {
             return this.$store.state.subjects.pageSize;

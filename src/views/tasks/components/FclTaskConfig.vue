@@ -47,7 +47,7 @@
     >
         <el-slider
             :min="0"                    
-            :max="1"
+            :max="0.9999"
             :step="0.01"
             :value="config.similarityThr"                    
             @input="val => onParamChange({similarityThr: val})"

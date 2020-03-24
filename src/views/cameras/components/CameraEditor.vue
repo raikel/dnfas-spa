@@ -49,7 +49,7 @@
                     :precision="8"
                     :step="0.001" 
                     :value="camera.locationLat"                    
-                    @input="val => onParamChange({ locationLat: val })"
+                    @change="val => onParamChange({ locationLat: val })"
                 ></el-input-number>
             </el-form-item>
 
@@ -61,7 +61,7 @@
                     :precision="8"
                     :step="0.001"
                     :value="camera.locationLon"                    
-                    @input="val => onParamChange({ locationLon: val })"          
+                    @change="val => onParamChange({ locationLon: val })"          
                 ></el-input-number>
             </el-form-item>
         </el-form>           

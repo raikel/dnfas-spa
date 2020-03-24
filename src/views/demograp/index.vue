@@ -61,17 +61,45 @@
     </template>
 
     <template v-slot:side-actions>
-        <div class="text-lg text-w6">Búsqueda</div>
-        <tool-button
-            class="ml-1"
-            tooltip="Restablecer filtro" 
-            icon="el-icon-refresh"
-            @click="onClearFilter"
-        ></tool-button>
+        <template v-if="panel === 'search'">
+            <div class="text-lg text-w6">Búsqueda</div>
+            <div class="flex-row">
+                <tool-button
+                    class="ml-1"
+                    tooltip="Restablecer filtro" 
+                    icon="el-icon-refresh"
+                    @click="onClearFilter"
+                ></tool-button>
+                <tool-button
+                    class="ml-1"
+                    tooltip="Exportar" 
+                    icon="el-icon-download"
+                    @click="panel = 'export'"
+                ></tool-button>
+            </div>                              
+        </template>
+        <template v-else-if="panel === 'export'">
+            <div class="text-lg text-w6">Exportar</div>
+            <div class="flex-row">
+                <tool-button
+                    class="mx-1"
+                    tooltip="Cancelar" 
+                    icon="el-icon-close"
+                    @click="panel = 'search'"
+                ></tool-button>
+            </div>                    
+        </template>
     </template>
 
     <template v-slot:side-content>
-        <demograp-filter></demograp-filter>
+        <demograp-filter 
+            v-if="panel === 'search'"
+        ></demograp-filter>
+        <xls-saver 
+            v-if="panel === 'export'"
+            :columns="columns"
+            store="demograp"
+        ></xls-saver>
     </template>
 </split-view>
 
@@ -84,9 +112,12 @@ import ListHeader from '@/components/ListHeader';
 import BarChart from '@/components/charts/BarChart';
 import PieChart from '@/components/charts/PieChart';
 import ToolButton from '@/components/ToolButton';
+import XlsSaver from '@/components/XlsSaver';
 import SplitView from '@/layout/components/SplitView';
 import DemograpFilter from './components/DemograpFilter';
 import DemograpList from './components/DemograpList';
+
+import { columns } from './components/data';
 
 export default {
     name: 'DemograpIndex',
@@ -97,12 +128,15 @@ export default {
         DemograpFilter,
         DemograpList,
         ToolButton,
+        XlsSaver,
         BarChart,
         PieChart
     },
 
     data() {
         return {
+            panel: 'search',
+            columns: columns
         };
     },
 

@@ -34,12 +34,13 @@
     ></empty> 
 
     <el-pagination 
-        :total="tasksCount" 
-        :page-size="pageSize" 
-        :background="true"
         hide-on-single-page
         layout="prev, pager, next"
         class="mt-4"
+        :page-size="pageSize" 
+        :background="true"
+        :current-page="pageNumber"
+        :total="tasksCount"
         @current-change="updatePage"
     ></el-pagination>       
 </div>
@@ -85,6 +86,9 @@ export default {
         }),
         tasksCount() {
             return this.$store.state.tasks.count;
+        },
+        pageNumber: function() {
+            return this.$store.state.tasks.pageNumber + 1;
         },
         pageSize() {
             return this.$store.state.tasks.pageSize;

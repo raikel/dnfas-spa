@@ -2,7 +2,7 @@
 
 <split-view class="subjects-index">
     <template v-slot:main>
-        <template v-if="main === 'list'">
+        <template v-if="panel === 'search'">
             <list-header 
                 class="mb-4"
                 :show-count="subjects.length"
@@ -18,7 +18,7 @@
             ></subjects-list>
         </template>
 
-        <template v-else-if="main === 'view'">
+        <template v-else-if="panel === 'details'">
             <subject-faces
                 :subject-id="curSubjectId"
             ></subject-faces>
@@ -62,21 +62,7 @@
 
         <template v-else-if="panel === 'details'">
             <div class="text-lg text-w6">Detalles</div>
-            <div class="flex-row">
-                <tool-button
-                    v-if="main === 'list'"
-                    class="ml-1"
-                    tooltip="Examinar imágenes" 
-                    icon="el-icon-camera"
-                    @click="main = 'view'"
-                ></tool-button>
-                <tool-button
-                    v-else-if="main === 'view'"
-                    class="ml-1"
-                    tooltip="Volver al listado" 
-                    icon="el-icon-s-grid"
-                    @click="main = 'list'"
-                ></tool-button>
+            <div class="flex-row">                
                 <tool-button
                     class="ml-1"
                     tooltip="Editar sujeto" 
@@ -88,6 +74,12 @@
                     tooltip="Eliminar sujeto" 
                     icon="el-icon-delete"
                     @click="showDeleteDialog = true"
+                ></tool-button>
+                <tool-button
+                    class="ml-1"
+                    tooltip="Volver al listado" 
+                    icon="el-icon-close"
+                    @click="onCloseDetails"
                 ></tool-button>
             </div>                 
         </template>
@@ -158,7 +150,6 @@ export default {
         return {
             newSubjectId: newSubjectId,
             autoUpdate: false,
-            main: 'list',
             panel: 'search',
             curSubjectId: null,
             showDeleteDialog: false,
@@ -241,6 +232,11 @@ export default {
                     this.$store.dispatch('subjects/fetchItems');
                 });
             }
+        },
+
+        onCloseDetails() {
+            this.panel = 'search';
+            this.curSubjectId = null;
         }
     }
 };
