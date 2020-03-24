@@ -69,28 +69,21 @@
             ></el-date-picker>
         </el-form-item>
 
-        <el-form-item label="Tarea">
+        <el-form-item label="Tareas (por nombre)">
+            <query-select
+                store="tasks"
+                :value="filter.tasks"
+                @change="val => onParamChange({tasks: val})"
+            ></query-select>
+        </el-form-item>
 
-            <el-select
-                v-model="tasks"
-                multiple
-                filterable
-                remote
-                clearable
-                placeholder="Selecciona una tarea"                              
-                :remote-method="queryTasks"
-                :loading="querying"
-                :automatic-dropdown="false"
-            >
-                <el-option
-                    v-for="choice in tasksChoices"
-                    :key="choice.id"
-                    :label="choice.name"
-                    :value="choice.id"
-                >
-                    <span v-html="choice.label"></span>
-                </el-option>
-            </el-select>
+        <el-form-item label="Tareas (por etiqueta)">
+            <query-select
+                store="tags"
+                :value="filter.tasksTags"
+                :params="{model: 'task'}"
+                @change="val => onParamChange({tasksTags: val})"
+            ></query-select>
         </el-form-item>
     </el-form>
 </div>
@@ -100,40 +93,28 @@
 <script>
 
 import OrderSelect from '@/components/OrderSelect';
-import { tasksApi } from '@/store/modules/tasks';
+import QuerySelect from '@/components/QuerySelect';
 import { sexChoices, orderChoices } from './data';
-
-const queryMinLength = 3;
 
 export default {
     name: 'DemograpFilter',
 
     components: {
-        OrderSelect
+        OrderSelect,
+        QuerySelect
     },
 
     data() {
         return {
             loading: false,
             sexChoices: sexChoices,
-            orderChoices: orderChoices,
-            querying: false,
-            tasksChoices: []
+            orderChoices: orderChoices
         };
     },
 
     computed: {
         filter() {
             return this.$store.state.demograp.filter;
-        },
-
-        tasks: {
-            get() {         
-                return this.filter.tasks;
-            },
-            set(value) {
-                this.onParamChange({tasks: value});              
-            }      
         }
     },
 
@@ -147,32 +128,6 @@ export default {
         onParamChange(data) {
             this.$store.dispatch('demograp/setFilter', data);
             this.update();
-        },
-        
-        queryTasks(query) {
-            this.tasksChoices = [];
-            if (query && query.length >= queryMinLength && !this.querying) {                
-                this.querying = true;                
-                tasksApi.fetch({
-                    name: query, 
-                    fields: 'id,name'
-                }).then(({ data }) => {
-                    const results = data.results ? data.results : [];
-                    const re = new RegExp(query, 'gi');
-                    const queryBold = '<b>' + query + '</b>';
-                    this.tasksChoices = results.map(task => {
-                        return {
-                            id: task.id,
-                            name: task.name,
-                            label: task.name.replace(re, queryBold)
-                        };
-                    });
-                }).catch(error => {
-                    this.$log.error(error);                   
-                }).finally(() => {
-                    this.querying = false;
-                });                
-            }
         }
     }
 };

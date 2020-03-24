@@ -30,29 +30,13 @@
         </el-radio-group>
     </el-form-item>
 
-    <el-form-item 
-        label="Fuente de video" 
-        prop="videoSourceId"
-    >
-        <el-select
-            v-model="videoSource"
-            filterable
-            remote
-            clearable
-            placeholder="Seleccione una fuente de video"                              
-            :remote-method="queryVideoSource"
-            :loading="querying"
-            :automatic-dropdown="false"
-        >
-            <el-option
-                v-for="source in videoSources"
-                :key="source.id"
-                :label="source.name"
-                :value="source.id"
-            >
-                <span v-html="source.label"></span>
-            </el-option>
-        </el-select>
+    <el-form-item label="Fuente de video" prop="videoSourceId">
+        <query-select
+            :multiple="false"
+            :store="sourceStore"
+            :value="config.videoSourceId"
+            @change="val => onParamChange({videoSourceId: val})"
+        ></query-select>
     </el-form-item>
 
     <el-form-item 
@@ -168,15 +152,12 @@
 
 <script>
 
+import QuerySelect from '@/components/QuerySelect';
 import { 
     videoSourceChoices as sourceChoices, 
     videoSourceOptions as sourceOptions 
 } from './data';
-import { videosApi } from '@/store/modules/videos';
-import { camerasApi } from '@/store/modules/cameras';
 import { vTaskConfigModel } from '@/store/modules/tasks/models';
-
-const QUERY_MIN_LENGTH = 3;
 
 const rules = {
     videoSourceType: [{
@@ -194,6 +175,10 @@ const rules = {
 export default {
     name: 'VdfTaskConfig',
 
+    components: {
+        QuerySelect
+    },
+
     props: {
         taskId: {
             type: [Number, String],
@@ -206,10 +191,8 @@ export default {
             sourceOptions: sourceOptions,
             sourceChoices: sourceChoices,
             loading: false,
-            querying: false,
             alert: null,
-            rules: rules,
-            videoSources: []
+            rules: rules
         };
     },
 
@@ -219,51 +202,17 @@ export default {
             return task ? task.config : null;
         },
 
-        videoSource: {
-            get() {
-                return this.config.videoSourceId;
-                /* if (this.config.videoSourceId) {
-                    const sourceType = this.config.videoSourceType;
-                    const id = this.config.videoSourceId;
-                    switch (sourceType) {
-                        case vTaskConfigModel.VIDEO_SOURCE_RECORD: {
-                            this.$store.dispatch('videos/getItem', id);
-                            const video = this.$store.state.videos.items[id];
-                            if (video) {
-                                return {
-                                    name: video.name,
-                                    label: video.name,
-                                    id: video.id
-                                };
-                            }
-                            break;
-                        }
-                        case vTaskConfigModel.VIDEO_SOURCE_CAMERA: {
-                            this.$store.dispatch('cameras/getItem', id);
-                            const camera = this.$store.state.cameras.items[id];
-                            if (camera) {
-                                return {
-                                    name: camera.name,
-                                    label: camera.name,
-                                    id: camera.id
-                                };
-                            }
-                            break;
-                        }
-                        default:
-                            this.$log.error(`Invalid video source ${sourceType}`);
-                            return null;
-                    }
-                }
-                return null; */
-            },
-
-            set(value) {
-                this.onParamChange({ videoSourceId: value });
-                /* this.onParamChange({
-                    videoSourceId: value ? value.id : null
-                });  */             
-            }      
+        sourceStore() {
+            const sourceType = this.config.videoSourceType;
+            switch (sourceType) {
+                case vTaskConfigModel.VIDEO_SOURCE_RECORD:
+                    return 'videos';
+                case vTaskConfigModel.VIDEO_SOURCE_CAMERA:
+                    return 'cameras';            
+                default:
+                    this.$log.error(`Invalid video source "${sourceType}"`);
+            }
+            return '';
         }
     },
 
@@ -290,47 +239,6 @@ export default {
                 };
             } else {
                 this.alert = null;
-            }
-        },
-
-        queryVideoSource(query) {
-            this.videoSources = [];
-            if (query && query.length >= QUERY_MIN_LENGTH && !this.querying) {                
-                this.querying = true;
-                const sourceType = this.config.videoSourceType;
-                let api = null;
-                switch (sourceType) {
-                    case vTaskConfigModel.VIDEO_SOURCE_RECORD:
-                        api = videosApi;
-                        break;
-                    case vTaskConfigModel.VIDEO_SOURCE_CAMERA:
-                        api = camerasApi;
-                        break;             
-                    default:
-                        this.$log.error(`Invalid video source ${sourceType}`);
-                        this.querying = false;
-                        return;
-                }
-                
-                api.fetch({
-                    name: query, 
-                    fields: 'id,name'
-                }).then(({ data }) => {
-                    const results = data.results ? data.results : [];
-                    const re = new RegExp(query, 'gi');
-                    const queryBold = '<b>' + query + '</b>';
-                    this.videoSources = results.map(source => {
-                        return {
-                            id: source.id,
-                            name: source.name,
-                            label: source.name.replace(re, queryBold)
-                        };
-                    });
-                }).catch(error => {
-                    this.$log.error(error);                   
-                }).finally(() => {
-                    this.querying = false;
-                });                
             }
         },
 

@@ -55,14 +55,14 @@
     </el-form-item>
 
     <el-form-item
-        label="Memoria de seguimiento"
+        label="Memoria de seguimiento (horas)"
     >
         <el-input-number
             controls-position="right" 
             :min="0"
-            :step="60"
-            :value="config.memorySeconds"                    
-            @change="val => onParamChange({memorySeconds: val})"
+            :step="1"
+            :value="config.memorySeconds / 3600"                    
+            @change="val => onParamChange({memorySeconds: 3600 * val})"
         >
         </el-input-number>
     </el-form-item>

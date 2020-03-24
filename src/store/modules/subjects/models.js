@@ -211,6 +211,12 @@ class SubjectFilter extends Model {
             api: 'tasks',
             type: Number,
             many: true
+        },
+        tasksTags: {
+            writable: true,
+            api: 'tasks_tags',
+            type: Number,
+            many: true
         }
     }
 }

@@ -2,7 +2,7 @@
 
 <el-select
     filterable
-    multiple
+    :multiple="multiple"
     remote
     clearable
     :placeholder="placeholder"                              
@@ -10,7 +10,7 @@
     :loading="querying"
     :automatic-dropdown="false"
     :value="value"
-    @change="val => $emit('change', val)"
+    @change="onChange"
 >
     <el-option
         v-for="choice in choices"
@@ -33,13 +33,25 @@ export default {
             required: true
         },
         value: {
-            type: Array,
+            type: null,
             default: () => []
         },        
         placeholder: {
             type: String,
-            default: ''
-        }        
+            default: 'Seleccionar'
+        },
+        params: {
+            type: Object,
+            default: () => {}
+        },
+        multiple: {
+            type: Boolean,
+            default: true
+        },
+        name: {
+            type: String,
+            default: 'name'
+        } 
     },
 
     data() {
@@ -56,15 +68,19 @@ export default {
         },
         choices() {
             const choices = [];
-            this.value.forEach(id => {
-                this.$store.dispatch(`${this.store}/getItem`, id);
-                const choice = this.$store.state[this.store].items[id];
-                if (choice) {
-                    choices.push({
-                        id: choice.id,
-                        name: choice.name
-                    });
-                }
+            const values = Array.isArray(this.value) ? 
+                this.value : [this.value];
+            values.forEach(id => {
+                if (id || id === 0) {
+                    this.$store.dispatch(`${this.store}/getItem`, id);
+                    const choice = this.$store.state[this.store].items[id];
+                    if (choice) {
+                        choices.push({
+                            id: choice.id,
+                            name: choice.name || choice.id
+                        });
+                    }
+                }                
             });
 
             const choices_ = this.queriedChoices.length ? 
@@ -74,7 +90,7 @@ export default {
                 if (!choices.some(choice => choice.id === choice_.id)) {
                     choices.push({
                         id: choice_.id,
-                        name: choice_.name
+                        name: choice_.name || choice_.id
                     });
                 }
             });
@@ -82,29 +98,47 @@ export default {
         }  
     },
 
+    watch: {
+        store(newVal, oldVal) {
+            if (newVal !== oldVal) {
+                this.setDefaults();
+            }
+        }
+    },
+
     created() {
-        this.api.fetch({
-            limit: 50,
-            fields: 'id,name'
-        }).then(({ data }) => {
-            const results = data.results || [];
-            this.defaultChoices = results.map(choice => {
-                return {
-                    id: choice.id,
-                    name: choice.name
-                };
-            });
-        });
+        this.setDefaults();
     },
 
     methods: {
+        onChange(val) {
+            this.$emit('change', val);
+            this.queriedChoices = [];
+        },
+
+        setDefaults() {
+            this.api.fetch({
+                limit: 50,
+                fields: 'id,name'
+            }).then(({ data }) => {
+                const results = data.results || [];
+                this.defaultChoices = results.map(choice => {
+                    return {
+                        id: choice.id,
+                        name: choice.name
+                    };
+                });
+            });
+        },
+
         query(query) {
             this.queriedChoices = [];
             if (query && query.length >= 2 && !this.querying) {                
                 this.querying = true;                           
                 this.api.fetch({
                     name: query, 
-                    fields: 'id,name'
+                    fields: 'id,name',
+                    ...this.params
                 }).then(({ data }) => {
                     const results = data.results || [];
                     this.queriedChoices = results.map(choice => {
