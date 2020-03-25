@@ -42,17 +42,60 @@
     </el-form-item>    
 
     <el-form-item 
-        label="Umbral de similitud" 
+        label="Umbral de similitud superior" 
+        prop="topDistThr"
+    >
+        <el-slider
+            :min="0"                    
+            :max="0.9999"
+            :step="0.01"
+            :value="config.topDistThr"                    
+            @input="val => onParamChange({topDistThr: val})"
+        ></el-slider>
+    </el-form-item>
+
+    <el-form-item 
+        label="Umbral de similitud inferior" 
+        prop="edgeThr"
+    >
+        <el-slider
+            :min="0"                    
+            :max="0.9999"
+            :step="0.01"
+            :value="config.edgeThr"                    
+            @input="val => onParamChange({edgeThr: val})"
+        ></el-slider>
+    </el-form-item>
+
+    <el-form-item 
+        label="Umbral de enlace completo" 
         prop="similarityThr"
     >
         <el-slider
             :min="0"                    
             :max="0.9999"
             :step="0.01"
-            :value="config.similarityThr"                    
-            @input="val => onParamChange({similarityThr: val})"
+            :value="config.lowDistThr"                    
+            @input="val => onParamChange({lowDistThr: val})"
         ></el-slider>
     </el-form-item>
+
+    <el-form-item label="Tipo de enlace">
+        <el-select
+            clearable
+            default-first-option
+            placeholder="Seleccionar"
+            :value="config.linkage"
+            @change="val => onParamChange({linkage: val})"            
+        >
+            <el-option
+                v-for="choice in linkageChoices"
+                :key="choice.value"
+                :label="choice.label"
+                :value="choice.value"
+            ></el-option>
+        </el-select>
+    </el-form-item>   
 
     <el-form-item
         label="Memoria de seguimiento (horas)"
@@ -154,6 +197,7 @@
 
 import { mapGetters } from 'vuex';
 import { tagModel } from '@/store/modules/tags/models';
+import { fclTaskConfigModel } from '@/store/modules/tasks/models';
 import QuerySelect from '@/components/QuerySelect';
 
 const rules = {
@@ -178,7 +222,8 @@ export default {
             loading: false,
             alert: null,
             rules: rules,
-            relativeTime: true
+            relativeTime: true,
+            linkageChoices: fclTaskConfigModel.LINKAGE_CHOICES
         };
     },
 

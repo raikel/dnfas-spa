@@ -182,12 +182,51 @@ const vTaskInfoModel = new VTaskInfoModel();
 // =============================================================================
 
 class FclTaskConfigModel extends Model {
+
+    LINKAGE_WARD = 'ward'
+    LINKAGE_AVERAGE = 'average'
+    LINKAGE_SINGLE = 'single'
+    LINKAGE_COMPLETE = 'complete'
+
+    LINKAGE_CHOICES = [{
+        label: 'Cuadrático',
+        value: this.LINKAGE_WARD
+    }, {
+        label: 'Promedio',
+        value: this.LINKAGE_AVERAGE
+    }, {
+        label: 'Simple',
+        value: this.LINKAGE_SINGLE
+    }, {
+        label: 'Completo',
+        value: this.LINKAGE_COMPLETE
+    }]
+
     props = {
-        similarityThr: {
+        topDistThr: {
             writable: true,
-            api: 'similarity_thr',
+            api: 'top_dist_thr',
             type: Number,
             default: 0.6
+        },
+        lowDistThr: {
+            writable: true,
+            api: 'low_dist_thr',
+            type: Number,
+            default: 0.6
+        },
+        edgeThr: {
+            writable: true,
+            api: 'edge_thr',
+            type: Number,
+            default: 0.5
+        },
+        linkage: {
+            writable: true,
+            api: 'linkage',
+            type: String,
+            choices: this.LINKAGE_CHOICES.map(c => c.value),
+            default: this.LINKAGE_WARD
         },
         memorySeconds: {
             writable: true,
