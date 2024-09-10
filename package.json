@@ -23,7 +23,7 @@
         "loadsh": "0.0.4",
         "normalize.css": "8.0.1",
         "nprogress": "0.2.0",
-        "path-to-regexp": "6.1.0",
+        "path-to-regexp": "8.0.0",
         "plyr": "^3.5.10",
         "qs": "^6.9.1",
         "screenfull": "^5.0.2",
